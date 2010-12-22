@@ -1,0 +1,10 @@
+LINK	instbin					sbin/date
+LINK	instbin					sbin/mount_nfs
+LINK	instbin					usr/bin/tee
+LINK	instbin					usr/sbin/rdate
+SCRIPT	dot.profile				.profile
+SCRIPT	install.sh				install
+SCRIPT	install.sub				install.sub
+SCRIPT	pre.sh					install.pre
+SCRIPT	post.sh					install.post
+SPECIAL	chmod 755 install install.pre install.post
