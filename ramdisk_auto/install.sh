@@ -60,15 +60,6 @@ fi
 dhcp_request ${IFDEV} || die "did not receive DHCP lease"
 echo "dhcp NONE NONE NONE" >/tmp/hostname.${IFDEV}
 
-for host in time timehost; do
-    if ping -c 1 -w 1 ${host} >/dev/null 2>&1; then
-        rdate -n -s timehost >/dev/null 2>&1
-        break
-    fi
-done
-
-STARTTIME=`date +%s`
-
 # Mount installroot if installing over nfs
 if echo ${CFG_PATH} | grep -q "^nfs:"; then
     _installroot="`echo ${CFG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
@@ -99,7 +90,7 @@ else
     die "cannot determine target HD"
 fi
 
-export ARCH DKDEVS IFDEV ROOTDISK ROOTDEV SWAPDEV STARTTIME
+export ARCH DKDEVS IFDEV ROOTDISK ROOTDEV SWAPDEV
 
 # Run pre-install script
 if [ "${PRE_PATH}" ]; then

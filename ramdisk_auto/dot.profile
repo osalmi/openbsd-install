@@ -58,7 +58,7 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	stty newcrt werase ^W intr ^C kill ^U erase ^? status ^T
 
 	# run the install script and reboot
-	/install 2>&1 | tee /tmp/install.log || exec sh
+	/install 2>&1 | sed "w /tmp/install.log" || exec sh
 	cp /tmp/install.log /mnt/root
 	reboot
 fi
