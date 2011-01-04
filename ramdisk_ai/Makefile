@@ -1,8 +1,8 @@
 .PATH: ${.CURDIR}/../ramdisk
-RAMDISK=RAMDISK_AUTO
+RAMDISK=RAMDISK_AI
 FLOPPYSIZE=5760
 FLOPPYTYPE=floppy288
-XNAME=auto
+XNAME=ai
 NOFS=1
 DISKTYPE=rdroot-8192
 NBLKS=8192
@@ -16,6 +16,6 @@ LISTS+=		${.CURDIR}/list.local
 	grep "^rdroot-8192" /etc/disktab || cat disktab >> /etc/disktab ; \
 	sed -e 's/MINIROOTSIZE=.*/MINIROOTSIZE=8192/' \
 	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_CD > \
-	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_AUTO ; \
+	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_AI ; \
 	sed -e '/^set_term$$/,$$s/^/#/' \
 	${.CURDIR}/../../miniroot/install.sub > install.sub
