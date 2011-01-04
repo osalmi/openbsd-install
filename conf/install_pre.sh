@@ -1,10 +1,12 @@
+#!/bin/ksh
+
 echo "Attempting to preserve files from previous install."
 
-if mkdir /mntold && mount -r /dev/${ROOTDEV} /mntold; then
-    # preserve files
+if mkdir -p /mntold && mount -r /dev/${ROOTDEV} /mntold; then
     (
+        mkdir -p /tmp/preserve
         cd /mntold
-        tar cvf /tmp/preserve.tar \
+        tar cvf - \
         etc/puppet/ssl \
         etc/ssh/ssh_host_key \
         etc/ssh/ssh_host_key.pub \
@@ -12,7 +14,8 @@ if mkdir /mntold && mount -r /dev/${ROOTDEV} /mntold; then
         etc/ssh/ssh_host_rsa_key.pub \
         etc/ssh/ssh_host_dsa_key \
         etc/ssh/ssh_host_dsa_key.pub \
-        var/db/dhcpd.leases
+        var/db/dhcpd.leases \
+        | tar xpf - -C /tmp/preserve
     )
 
     # get old root password hash

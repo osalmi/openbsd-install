@@ -16,7 +16,7 @@
 
 # URL to installation configuration
 #
-CFG_PATH=nfs://install/export/install/OpenBSD/${VNAME}
+CFG_PATH=http://code.zebes.net/openbsd-ai/src/tip/conf/install.conf
 
 die() {
     echo "Fatal error: $*" 1>&2
@@ -79,11 +79,9 @@ if echo ${CFG_PATH} | grep -q "^nfs:"; then
 fi
 
 # fetch install.conf
-if [ "${CFG_PATH}" ]; then
-    ftp -V -o /install.conf ${CFG_PATH} || die "failed to fetch install.conf"
-fi
-
-. install.conf || die "install.conf not found"
+ftp -V -o /install.conf ${CFG_PATH} || die "failed to fetch ${CFG_PATH}"
+grep -q '^#!/bin/ksh' install.conf || die "invalid install.conf"
+. install.conf
 
 # figure out target HD
 DKDEVS="`get_dkdevs`"
@@ -104,7 +102,11 @@ fi
 export ARCH DKDEVS IFDEV ROOTDISK ROOTDEV SWAPDEV STARTTIME
 
 # Run pre-install script
-. install.pre
+if [ "${PRE_PATH}" ]; then
+    ftp -V -o /install.pre ${PRE_PATH} || die "failed to fetch ${PRE_PATH}"
+    grep -q '^#!/bin/ksh' install.pre || die "invalid install.pre"
+    . install.pre
+fi
 
 # determine swap size (2 x memory, max 25% of disk)
 MEMSIZE=`dmesg | sed -n '/real mem/s/.*(\([0-9]*\)MB)/\1/p' | sed '$!d'`
@@ -244,8 +246,22 @@ q" | /mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 
 echo "done."
 
-# Perform final steps common to both an install and an upgrade.
-( finish_up; echo )
-
 # Run post-install script
-. install.post
+if [ "${POST_PATH}" ]; then
+    ftp -V -o /install.post ${POST_PATH} || die "failed to fetch ${POST_PATH}"
+    grep -q '^#!/bin/ksh' install.post || die "invalid install.post"
+    . install.post
+fi
+
+# Fetch site.tgz
+if [ "${SITE_PATH}" ]; then
+    echo "Installing site customizations."
+    if [ -d "${SITE_PATH}" ]; then
+        ( cd ${SITE_PATH} && tar cf - . | tar xvf - -C /mnt )
+    else
+        ftp -V -o - ${SITE_PATH} | tar xzpvf - -C /mnt
+    fi
+fi
+
+# Perform final steps common to both an install and an upgrade.
+finish_up
