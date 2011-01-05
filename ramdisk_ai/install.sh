@@ -16,7 +16,7 @@
 
 # URL to installation configuration
 #
-CFG_PATH=http://code.zebes.net/openbsd-ai/src/tip/conf/install.conf
+CFG_PATH=http://bitbucket.org/osalmi/openbsd-ai/raw/tip/conf/install.conf
 
 die() {
     echo "Fatal error: $*" | sed "w /tmp/install.error"
