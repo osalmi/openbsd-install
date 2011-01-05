@@ -1,0 +1,72 @@
+#!/bin/sh
+
+MYARCH=`uname -m`
+MYDATE=`date +%Y%m%d`
+
+umask 022
+
+myusage() {
+    echo "Usage: `basename $0` <target>"
+    echo "  kernel      - build and install kernel"
+    echo "  system      - build and install system"
+    echo "  release     - build release files"
+    exit 1
+}
+
+mykernel() {
+    for kernel in GENERIC GENERIC.MP; do
+        cd /usr/src/sys/arch/${MYARCH}/conf
+        config ${kernel}
+        cd /usr/src/sys/arch/${MYARCH}/compile/${kernel}
+        make clean depend all
+        case ${kernel} in
+            GENERIC)
+            cp /bsd /obsd
+            cp bsd /bsd
+            ;;
+
+            GENERIC.MP)
+            cp /bsd.mp /obsd.mp
+            cp bsd /bsd.mp
+            ;;
+        esac
+    done
+}
+
+mysystem() {
+    cd /usr/obj && rm -fr *
+    cd /usr/src && make obj
+    cd /usr/src/etc && env DESTDIR=/ make distrib-dirs
+    cd /usr/src && make build
+}
+
+myrelease() {
+    export DESTDIR="/var/tmp/build-dest-${MYDATE}/${MYARCH}"
+    export RELEASEDIR="/var/tmp/build-release-${MYDATE}/${MYARCH}"
+
+    [ -d "${DESTDIR}" ] && rm -fr ${DESTDIR}
+    [ -d "${RELEASEDIR}" ] && rm -fr ${RELEASEDIR}
+    mkdir -p ${DESTDIR} ${RELEASEDIR}
+    cd /usr/src/distrib/crunch && make obj depend all install
+    cd /usr/src/distrib/special/libstubs && make obj depend all install
+    cd /usr/src/etc && make release
+    cd /usr/src/distrib/sets && sh checkflist
+}
+
+case $1 in
+    kernel)
+    mykernel
+    ;;
+
+    system)
+    mysystem
+    ;;
+
+    release)
+    myrelease
+    ;;
+
+    *)
+    myusage
+    ;;
+esac

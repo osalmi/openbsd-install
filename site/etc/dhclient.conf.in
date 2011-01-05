@@ -1,0 +1,6 @@
+interface "PRIMARYDEV" {
+	request subnet-mask, broadcast-address, routers,
+		domain-name, domain-name-servers, host-name;
+}
+initial-interval 1;
+request subnet-mask, broadcast-address, routers;

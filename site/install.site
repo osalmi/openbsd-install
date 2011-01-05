@@ -1,0 +1,139 @@
+#!/bin/sh
+
+# Copyright (c) 2005-2010 Ossi Salmi
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+export PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
+
+MYFQDN=`hostname`
+MYNAME=${MYFQDN%%.*}
+MYDOMAIN=${MYFQDN#*.}
+MYIPADDR=`host ${MYFQDN} | awk '/has address/ { print $4 }'`
+
+#
+# Begin
+#
+
+echo -n "Basic directory structure..."
+mkdir -p /etc/local /usr/local/etc
+mkdir -p /export /install /srv
+echo "done."
+
+echo "Installing additional packages..."
+ldconfig /usr/X11R6/lib /usr/local/lib
+pkg_add -avx -l /install.pkgs
+echo "done."
+
+echo -n "Configuring packages..."
+
+echo "\nexport PS1='\h# '" >>/root/.profile
+echo "set nocompatible" >>/root/.vimrc
+
+# /bin/{bash,zsh} for compatibility
+ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
+ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
+
+(
+    # set python2.5 as default
+    cd /usr/local/bin
+    for cmd in idle pydoc python; do ln -fs ${cmd}2.5 ${cmd}; done
+)
+
+(
+    # make emacs use gnurcs
+    echo '(setq vc-path (list "/usr/local/bin"))' \
+        >/usr/local/share/emacs/site-lisp/default.el
+    cd /usr/local/bin
+    for cmd in ci co ident merge rcs rcsclean rcsdiff rcsmerge rlog; do
+        ln -s g${cmd} ${cmd}
+    done
+)
+
+# fix misnamed man pages
+for _f in /usr/local/man/cat?/*.[1-9]; do
+    [ -f $_f ] && mv $_f `echo $_f | sed 's/[1-9]$/0/'`
+done
+
+# silence /etc/{daily,weekly,monthly}
+for i in /etc/{daily,weekly,monthly}.local; do
+    echo "VERBOSESTATUS=0" > $i
+done
+
+echo "done."
+
+echo -n "DHCP..."
+cp /etc/dhclient.conf /etc/dhclient.conf.orig
+sed "s/PRIMARYDEV/${IFDEV}/" <${PROTODIR}/etc/dhclient.conf.in >/etc/dhclient.conf
+MYGATE=`route -n show -inet | awk '/default/ { print $2; exit }'`
+if [ "${MYGATE}" ]; then
+    echo "${MYGATE}" | grep -q "^link" && MYGATE=127.0.0.1
+    echo "supersede routers ${MYGATE};" >> /etc/dhclient.conf
+fi
+echo "done."
+
+echo -n "PF..."
+echo "pf=YES" >>/etc/rc.conf.local
+echo "done."
+
+echo -n "Syslog..."
+cp /etc/syslog.conf /etc/syslog.conf.orig
+cat <<EOF >>/etc/syslog.conf
+
+*.*							/var/log/all.log
+mark.*							/var/log/all.log
+EOF
+cp /etc/newsyslog.conf /etc/newsyslog.conf.orig
+cat <<EOF >>/etc/newsyslog.conf
+/var/log/all.log	root:wheel	640  7     *    \$D0   Z
+EOF
+touch /var/log/all.log
+chown root:wheel /var/log/all.log
+chmod 640 /var/log/all.log
+echo "done."
+
+if [ -x /usr/local/sbin/puppetd ]; then
+    echo -n "Bootstrapping puppet..."
+    test -f /etc/puppet/ssl/certs/${MYFQDN}.pem && \
+        /usr/local/sbin/puppetd -o --no-report --no-daemonize --tags bootstrap
+    echo "done."
+fi
+
+echo -n "Serial console..."
+CONSOLE="$(dmesg | sed -n '/^com\([0-9]\): console$/s//\1/p' | sed '$!d')"
+if [ "${CONSOLE}" ]; then
+    echo " yes, redirecting console to com${CONSOLE}."
+    cd /mnt/etc
+    echo "set tty com${CONSOLE}" >> boot.conf
+    cp ttys ttys.orig
+    sed "/^tty0${CONSOLE}/s/unknown off/vt220	on secure/" ttys.orig > ttys
+    rm -f ttys.orig
+else
+    echo " no."
+fi
+
+echo "Fixing permissions..."
+mtree -e -U -p / -f /etc/mtree/special
+echo "done."
+
+echo -n "Creating installation notes..."
+cat > /root/install-notes.log <<EOF
+Installation date:	`date`
+Installation time:	${SECONDS} seconds
+Determined ip:		${MYIPADDR}
+Determined fqdn:	${MYFQDN}
+Determined disks:	${DKDEVS}
+Determined root disk:	${ROOTDISK}
+Determined interface:	${IFDEV}
+EOF
+echo "done."
