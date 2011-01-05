@@ -19,8 +19,8 @@
 CFG_PATH=http://code.zebes.net/openbsd-ai/src/tip/conf/install.conf
 
 die() {
-    echo "Fatal error: $*" 1>&2
-    exec sh
+    echo "Fatal error: $*" | sed "w /tmp/install.error"
+    exit 1
 }
 
 # install.sub needs to know the MODE
