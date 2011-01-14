@@ -102,10 +102,9 @@ chown root:wheel /var/log/all.log
 chmod 640 /var/log/all.log
 echo "done."
 
-if [ -x /usr/local/sbin/puppetd ]; then
+if [ -x /usr/local/sbin/puppetd -a -s /etc/puppet/ssl/certs/ca.pem ]; then
     echo -n "Bootstrapping puppet..."
-    test -f /etc/puppet/ssl/certs/${MYFQDN}.pem && \
-        /usr/local/sbin/puppetd -o --no-report --no-daemonize --tags bootstrap
+    /usr/local/sbin/puppetd -o --no-report --no-daemonize --tags bootstrap
     echo "done."
 fi
 

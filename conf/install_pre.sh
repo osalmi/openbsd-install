@@ -8,6 +8,7 @@ if mkdir -p /mntold && mount -r /dev/${ROOTDEV} /mntold; then
         cd /mntold
         tar cvf - \
         etc/puppet/ssl \
+        etc/puppet/puppet.conf \
         etc/ssh/ssh_host_key \
         etc/ssh/ssh_host_key.pub \
         etc/ssh/ssh_host_rsa_key \
