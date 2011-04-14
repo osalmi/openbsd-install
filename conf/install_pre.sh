@@ -20,16 +20,7 @@ if mkdir -p /mntold && mount -r /dev/${ROOTDEV} /mntold; then
     )
 
     # get old root password hash
-    ROOTHASH=`sed -n 's/^root:\([^:]*\):.*/\1/p' /mntold/etc/master.passwd`
+    ROOTPASS=`sed -n 's/^root:\([^:]*\):.*/\1/p' /mntold/etc/master.passwd`
 
     umount /mntold
-fi
-
-if [ -z "${ROOTHASH}" ]; then
-    while :; do
-        askpassword root
-        _rootpass="$_password"
-        [[ -n "$_password" ]] && break
-        echo "The root password must be set."
-    done
 fi

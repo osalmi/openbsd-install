@@ -99,6 +99,15 @@ if [ "${PRE_PATH}" ]; then
     . install.pre
 fi
 
+if [ -z "${ROOTPASS}" ]; then
+    while :; do
+        askpassword root
+        _rootpass="$_password"
+        [[ -n "$_password" ]] && break
+        echo "The root password must be set."
+    done
+fi
+
 # determine swap size (2 x memory, max 25% of disk)
 MEMSIZE=`dmesg | sed -n '/real mem/s/.*(\([0-9]*\)MB)/\1/p' | sed '$!d'`
 DISKSIZE=`disklabel -p m ${ROOTDISK} 2>&1 | sed -n '/^  c:/s/[^0-9]*\([0-9]*\)\.[0-9]M.*/\1/p'`
@@ -229,8 +238,8 @@ dmesg >/dev/urandom
 chmod 600 /mnt/var/db/host.random >/dev/null 2>&1
 
 # Set root password
-[ "${ROOTHASH}" ] || ROOTHASH=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
-echo "1,s@^root::@root:${ROOTHASH}:@
+[ "${ROOTPASS}" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
+echo "1,s@^root::@root:${ROOTPASS}:@
 w
 q" | /mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 /mnt/usr/sbin/pwd_mkdb -p -d /mnt/etc /etc/master.passwd
