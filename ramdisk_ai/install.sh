@@ -265,4 +265,4 @@ fi
 
 # Perform final steps common to both an install and an upgrade.
 finish_up
-touch /tmp/.install_ok
+echo -n >/tmp/.install_ok
