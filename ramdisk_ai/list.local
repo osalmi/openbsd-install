@@ -1,4 +1,5 @@
 LINK	instbin					sbin/mount_nfs
+LINK	instbin					usr/bin/tee
 SCRIPT	dot.profile				.profile
 SCRIPT	install.sh				install
 SCRIPT	install.sub				install.sub

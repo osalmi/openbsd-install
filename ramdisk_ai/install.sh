@@ -19,7 +19,7 @@
 CFG_PATH=http://code.zebes.net/openbsd-ai/raw/tip/conf/install.conf
 
 die() {
-    echo "Fatal error: $*" | sed "w /tmp/install.error"
+    echo "Fatal error: $*"
     exit 1
 }
 
@@ -256,3 +256,4 @@ fi
 
 # Perform final steps common to both an install and an upgrade.
 finish_up
+touch /tmp/.install_ok
