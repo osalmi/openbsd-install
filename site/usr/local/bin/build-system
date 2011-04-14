@@ -1,10 +1,5 @@
 #!/bin/sh
 
-MYARCH=`uname -m`
-MYDATE=`date +%Y%m%d`
-
-umask 022
-
 myusage() {
     echo "Usage: `basename $0` <target>"
     echo "  kernel      - build and install kernel"
@@ -14,22 +9,18 @@ myusage() {
 }
 
 mykernel() {
+    NCPU=$(sysctl -n hw.ncpufound)
+    if [ ${NCPU} -gt 1 ]; then
+        BOOT=GENERIC.MP
+    else
+        BOOT=GENERIC
+    fi
     for kernel in GENERIC GENERIC.MP; do
         cd /usr/src/sys/arch/${MYARCH}/conf
         config ${kernel}
         cd /usr/src/sys/arch/${MYARCH}/compile/${kernel}
         make clean depend all
-        case ${kernel} in
-            GENERIC)
-            cp /bsd /obsd
-            cp bsd /bsd
-            ;;
-
-            GENERIC.MP)
-            cp /bsd.mp /obsd.mp
-            cp bsd /bsd.mp
-            ;;
-        esac
+        test ${kernel} = ${BOOT} && make install
     done
 }
 
@@ -41,6 +32,8 @@ mysystem() {
 }
 
 myrelease() {
+    MYARCH=`uname -m`
+    MYDATE=`date +%Y%m%d`
     export DESTDIR="/var/tmp/build-dest-${MYDATE}/${MYARCH}"
     export RELEASEDIR="/var/tmp/build-release-${MYDATE}/${MYARCH}"
 
@@ -52,6 +45,8 @@ myrelease() {
     cd /usr/src/etc && make release
     cd /usr/src/distrib/sets && sh checkflist
 }
+
+umask 022
 
 case $1 in
     kernel)
