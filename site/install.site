@@ -121,6 +121,14 @@ else
     echo " no."
 fi
 
+if dmesg | grep -q "^bios0:.*KVM"; then
+    echo "KVM detected, configuring kernel..."
+    for bsd in /bsd /bsd.mp; do
+        echo "disable mpbios\nquit" | config -ef ${bsd}
+    done
+    echo "done."
+fi
+
 echo "Fixing permissions..."
 mtree -e -U -p / -f /etc/mtree/special
 echo "done."
