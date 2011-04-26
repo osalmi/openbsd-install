@@ -144,3 +144,5 @@ Determined root disk:	${ROOTDISK}
 Determined interface:	${IFDEV}
 EOF
 echo "done."
+
+rm -f /install.{pkgs,site}
