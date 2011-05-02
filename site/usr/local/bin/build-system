@@ -32,7 +32,6 @@ mysystem() {
 }
 
 myrelease() {
-    MYARCH=`uname -m`
     MYDATE=`date +%Y%m%d`
     export DESTDIR="/var/tmp/build-dest-${MYDATE}/${MYARCH}"
     export RELEASEDIR="/var/tmp/build-release-${MYDATE}/${MYARCH}"
@@ -45,6 +44,8 @@ myrelease() {
     cd /usr/src/etc && make release
     cd /usr/src/distrib/sets && sh checkflist
 }
+
+MYARCH=`uname -m`
 
 umask 022
 

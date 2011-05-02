@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-# Copyright (c) 2005-2010 Ossi Salmi
+# Copyright (c) 2005-2011 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,7 @@
 
 # URL to installation configuration
 #
-CFG_PATH=http://code.zebes.net/openbsd-ai/raw/tip/conf/install.conf
+CFG_PATH=http://code.zebes.net/openbsd-ai/raw/tip/etc/install.conf
 
 die() {
     echo "Fatal error: $*"
@@ -60,13 +60,12 @@ fi
 dhcp_request ${IFDEV} || die "did not receive DHCP lease"
 echo "dhcp NONE NONE NONE" >/tmp/hostname.${IFDEV}
 
-# Mount installroot if installing over nfs
+# Mount install root if installing over nfs
 if echo ${CFG_PATH} | grep -q "^nfs:"; then
-    _installroot="`echo ${CFG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
-    mkdir /installroot
-    mount -o ro,tcp ${_installroot} /installroot >/dev/null 2>&1 || \
-        die "failed to mount ${_installroot}"
-    export CFG_PATH=file:/installroot/install.conf
+    _install="`echo ${CFG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
+    mount -o ro,tcp ${_install} /mnt2 >/dev/null 2>&1 || \
+        die "failed to mount ${_install}"
+    CFG_PATH=file:/mnt2/install.conf
 fi
 
 # fetch install.conf
@@ -231,11 +230,14 @@ done )
 ln -sf /usr/share/zoneinfo/${TZ} /mnt/etc/localtime
 
 # Feed the random pool some junk before we read from it
-dmesg >/dev/urandom
+(dmesg; sysctl; route -n show; df;
+	ifconfig -A; hostname) >/mnt/dev/arandom 2>&1
 
-/mnt/bin/dd if=/mnt/dev/urandom of=/mnt/var/db/host.random \
-	bs=1024 count=64 >/dev/null 2>&1
+echo -n "Generating initial host.random file..."
+/mnt/bin/dd if=/mnt/dev/arandom of=/mnt/var/db/host.random \
+	bs=65536 count=1 >/dev/null 2>&1
 chmod 600 /mnt/var/db/host.random >/dev/null 2>&1
+echo "done."
 
 # Set root password
 [ "${ROOTPASS}" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`

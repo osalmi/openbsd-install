@@ -45,9 +45,12 @@ ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
 ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
 
 (
-    # set python2.5 as default
+    # set default python
+    PYTHON=2.6
     cd /usr/local/bin
-    for cmd in idle pydoc python; do ln -fs ${cmd}2.5 ${cmd}; done
+    for cmd in idle pydoc python python-config; do
+        test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
+    done
 )
 
 (
@@ -59,11 +62,6 @@ ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
         ln -s g${cmd} ${cmd}
     done
 )
-
-# fix misnamed man pages
-for _f in /usr/local/man/cat?/*.[1-9]; do
-    [ -f $_f ] && mv $_f `echo $_f | sed 's/[1-9]$/0/'`
-done
 
 # silence /etc/{daily,weekly,monthly}
 for i in /etc/{daily,weekly,monthly}.local; do
@@ -80,10 +78,6 @@ if [ "${MYGATE}" ]; then
     echo "${MYGATE}" | grep -q "^link" && MYGATE=127.0.0.1
     echo "supersede routers ${MYGATE};" >> /etc/dhclient.conf
 fi
-echo "done."
-
-echo -n "PF..."
-echo "pf=YES" >>/etc/rc.conf.local
 echo "done."
 
 echo -n "Syslog..."
