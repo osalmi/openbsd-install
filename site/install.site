@@ -14,7 +14,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-export PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
+PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
 
 MYFQDN=`hostname`
 MYNAME=${MYFQDN%%.*}
@@ -31,6 +31,12 @@ mkdir -p /export /install /srv
 echo "done."
 
 echo "Installing additional packages..."
+if echo ${PKG_PATH} | grep -q "^nfs:"; then
+    _install="`echo ${PKG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
+    mount -o ro,tcp ${_install} /install
+    PKG_PATH=/install
+fi
+export PKG_PATH
 ldconfig /usr/X11R6/lib /usr/local/lib
 pkg_add -avx -l /install.pkgs
 echo "done."
