@@ -229,6 +229,8 @@ done )
 # Set the timezone
 ln -sf /usr/share/zoneinfo/${TZ} /mnt/etc/localtime
 
+echo "done."
+
 # Feed the random pool some junk before we read from it
 (dmesg; sysctl; route -n show; df;
 	ifconfig -A; hostname) >/mnt/dev/arandom 2>&1
@@ -239,13 +241,13 @@ echo -n "Generating initial host.random file..."
 chmod 600 /mnt/var/db/host.random >/dev/null 2>&1
 echo "done."
 
+echo -n "Setting root password..."
 # Set root password
 [ "${ROOTPASS}" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
 echo "1,s@^root::@root:${ROOTPASS}:@
 w
 q" | /mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 /mnt/usr/sbin/pwd_mkdb -p -d /mnt/etc /etc/master.passwd
-
 echo "done."
 
 # Run post-install script
