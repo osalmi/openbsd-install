@@ -8,7 +8,6 @@ cvsps-2.1           generate patchsets from CVS repositories
 cyrus-sasl-2.1.23p5 RFC 2222 SASL (Simple Authentication and Security Layer)
 db-4.6.21p4         Berkeley DB package, revision 4
 dmidecode-2.10      dump DMI/SMBIOS contents in human-readable format
-emacs-22.3p8-no_x11 GNU editor: extensible, customizable, self-documenting
 gd-2.0.35p0         library for dynamic creation of images
 gdbm-1.8.3p0        GNU dbm
 gettext-0.18.1p0    GNU gettext
