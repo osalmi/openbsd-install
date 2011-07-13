@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2005-2010 Ossi Salmi
+# Copyright (c) 2005-2011 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -104,7 +104,7 @@ echo "done."
 
 if [ -x /usr/local/sbin/puppetd -a -s /etc/puppet/ssl/certs/ca.pem ]; then
     echo -n "Bootstrapping puppet..."
-    /usr/local/sbin/puppetd -o --no-report --no-daemonize --tags bootstrap
+    /usr/local/sbin/puppetd -o --no-report --no-daemonize --pluginsync --tags bootstrap
     echo "done."
 fi
 
