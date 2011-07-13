@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-if [ -d /tmp/preserve ]; then
+if [ -s /tmp/preserve.tar.gz ]; then
     echo "Restoring preserved files."
-    ( cd /tmp/preserve && tar cf - . | tar xpvf - -C /mnt )
+    tar xzpvf /tmp/preserve.tar.gz -C /mnt
 fi
