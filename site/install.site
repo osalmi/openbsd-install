@@ -76,22 +76,6 @@ if [ "${MYGATE}" ]; then
 fi
 echo "done."
 
-echo -n "Syslog..."
-cp /etc/syslog.conf /etc/syslog.conf.orig
-cat <<EOF >>/etc/syslog.conf
-
-*.*							/var/log/all.log
-mark.*							/var/log/all.log
-EOF
-cp /etc/newsyslog.conf /etc/newsyslog.conf.orig
-cat <<EOF >>/etc/newsyslog.conf
-/var/log/all.log	root:wheel	640  7     *    \$D0   Z
-EOF
-touch /var/log/all.log
-chown root:wheel /var/log/all.log
-chmod 640 /var/log/all.log
-echo "done."
-
 if [ -x /usr/local/sbin/puppetd -a -s /etc/puppet/ssl/certs/ca.pem ]; then
     echo -n "Bootstrapping puppet..."
     /usr/local/sbin/puppetd -o --no-report --no-daemonize --pluginsync --tags bootstrap
