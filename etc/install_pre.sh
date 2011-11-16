@@ -2,7 +2,7 @@
 
 echo "Attempting to preserve files from previous install."
 
-if mkdir -p /mntold && mount -r /dev/${ROOTDEV} /mntold; then
+if mkdir -p /mntold && mount -r /dev/${ROOTDISK}a /mntold; then
     (
         mkdir -p /tmp/preserve
         cd /mntold

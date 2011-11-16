@@ -15,6 +15,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
+#PKG_PATH=nfs://install/export/install/OpenBSD/${VNAME}/custom/packages/${ARCH}
 
 MYFQDN=`hostname`
 MYNAME=${MYFQDN%%.*}
@@ -27,14 +28,14 @@ MYIPADDR=`host ${MYFQDN} | awk '/has address/ { print $4 }'`
 
 echo -n "Basic directory structure..."
 mkdir -p /etc/local /usr/local/etc
-mkdir -p /export /install /srv
+mkdir -p /export /srv
 echo "done."
 
 echo "Installing additional packages..."
 if echo ${PKG_PATH} | grep -q "^nfs:"; then
     _install="`echo ${PKG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
-    mount -o ro,tcp ${_install} /install
-    PKG_PATH=/install
+    mount -o ro,tcp ${_install} /mnt
+    PKG_PATH=/mnt
 fi
 export PKG_PATH
 ldconfig /usr/X11R6/lib /usr/local/lib
@@ -52,7 +53,7 @@ ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
 
 (
     # set default python
-    PYTHON=2.6
+    PYTHON=2.7
     cd /usr/local/bin
     for cmd in idle pydoc python python-config; do
         test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
@@ -120,3 +121,4 @@ EOF
 echo "done."
 
 rm -f /install.{pkgs,site}
+umount /mnt 2>/dev/null

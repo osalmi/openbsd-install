@@ -1,7 +1,7 @@
 #	$OpenBSD: dot.profile,v 1.16 2010/06/30 20:22:01 halex Exp $
 #	$NetBSD: dot.profile,v 1.1 1995/12/18 22:54:43 pk Exp $
 #
-# Copyright (c) 2010 Ossi Salmi
+# Copyright (c) 2010-2011 Ossi Salmi
 # Copyright (c) 2009 Kenneth R. Westerback
 # Copyright (c) 1995 Jason R. Thorpe
 # Copyright (c) 1994 Christopher G. Demetriou
@@ -53,13 +53,15 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 
 	mount -u /dev/${rootdisk:-rd0a} /
 
+	# Create a fake rc that just returns 1 and throws us back
+	echo ! : > /etc/rc
+
 	# set up some sane defaults
 	echo 'erase ^?, werase ^W, kill ^U, intr ^C, status ^T'
 	stty newcrt werase ^W intr ^C kill ^U erase ^? status ^T
 
 	# run the install script and reboot
 	/install 2>&1 | tee /tmp/install.log
-	test -f /tmp/.install_ok || exec /bin/ksh
 	cp /tmp/install.log /mnt/root
-	reboot
+	test -f /tmp/.install_ok && reboot
 fi

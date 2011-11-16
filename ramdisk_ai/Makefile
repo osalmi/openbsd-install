@@ -17,5 +17,6 @@ LISTS+=		${.CURDIR}/list.local
 	sed -e 's/MINIROOTSIZE=.*/MINIROOTSIZE=8192/' \
 	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_CD > \
 	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_AI ; \
-	sed -e '/^set_term$$/,$$s/^/#/' \
+	sed -E -e '/^[[:space:]]+update_firmware$$/s/^/#/' \
+	-e '/^set_term$$/,$$s/^/#/' \
 	${.CURDIR}/../../miniroot/install.sub > install.sub
