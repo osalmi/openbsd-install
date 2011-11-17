@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-echo "Attempting to preserve files from previous install."
+echo "Attempting to preserve files from previous install:"
 
 if mkdir -p /mntold && mount -r /dev/${ROOTDISK}a /mntold; then
     (

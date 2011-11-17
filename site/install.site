@@ -26,12 +26,11 @@ MYIPADDR=`host ${MYFQDN} | awk '/has address/ { print $4 }'`
 # Begin
 #
 
-echo -n "Basic directory structure..."
+echo "Basic directory structure."
 mkdir -p /etc/local /usr/local/etc
 mkdir -p /export /srv
-echo "done."
 
-echo "Installing additional packages..."
+echo "Installing additional packages:"
 if echo ${PKG_PATH} | grep -q "^nfs:"; then
     _install="`echo ${PKG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
     mount -o ro,tcp ${_install} /mnt
@@ -40,9 +39,8 @@ fi
 export PKG_PATH
 ldconfig /usr/X11R6/lib /usr/local/lib
 pkg_add -avx -l /install.pkgs
-echo "done."
 
-echo -n "Configuring packages..."
+echo "Configuring packages."
 
 echo "\nexport PS1='\h# '" >>/root/.profile
 echo "set nocompatible" >>/root/.vimrc
@@ -65,9 +63,7 @@ for i in /etc/{daily,weekly,monthly}.local; do
     echo "VERBOSESTATUS=0" > $i
 done
 
-echo "done."
-
-echo -n "DHCP..."
+echo "Configuring dhclient."
 cp /etc/dhclient.conf /etc/dhclient.conf.orig
 sed "s/PRIMARYDEV/${IFDEV}/" <${PROTODIR}/etc/dhclient.conf.in >/etc/dhclient.conf
 MYGATE=`route -n show -inet | awk '/default/ { print $2; exit }'`
@@ -75,15 +71,13 @@ if [ "${MYGATE}" ]; then
     echo "${MYGATE}" | grep -q "^link" && MYGATE=127.0.0.1
     echo "supersede routers ${MYGATE};" >> /etc/dhclient.conf
 fi
-echo "done."
 
 if [ -x /usr/local/sbin/puppetd -a -s /etc/puppet/ssl/certs/ca.pem ]; then
-    echo -n "Bootstrapping puppet..."
+    echo "Bootstrapping puppet."
     /usr/local/sbin/puppetd -o --no-report --no-daemonize --pluginsync --tags bootstrap
-    echo "done."
 fi
 
-echo -n "Serial console..."
+echo -n "Serial console:"
 CONSOLE="$(dmesg | sed -n '/^com\([0-9]\): console$/s//\1/p' | sed '$!d')"
 if [ "${CONSOLE}" ]; then
     echo " yes, redirecting console to com${CONSOLE}."
@@ -97,18 +91,16 @@ else
 fi
 
 if dmesg | grep -q "^bios0:.*KVM"; then
-    echo "KVM detected, configuring kernel..."
+    echo "KVM detected, configuring kernel for compatibility."
     for bsd in /bsd /bsd.mp; do
         echo "disable mpbios\nquit" | config -ef ${bsd}
     done
-    echo "done."
 fi
 
-echo "Fixing permissions..."
+echo "Fixing permissions:"
 mtree -e -U -p / -f /etc/mtree/special
-echo "done."
 
-echo -n "Creating installation notes..."
+echo -n "Creating installation notes."
 cat > /root/install-notes.log <<EOF
 Installation date:	`date`
 Installation time:	${SECONDS} seconds
@@ -118,7 +110,6 @@ Determined disks:	${DKDEVS}
 Determined root disk:	${ROOTDISK}
 Determined interface:	${IFDEV}
 EOF
-echo "done."
 
 rm -f /install.{pkgs,site}
 umount /mnt 2>/dev/null

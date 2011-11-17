@@ -223,7 +223,7 @@ if [ "$POST_PATH" ]; then
 fi
 
 if [ "$SITE_PATH" ]; then
-    echo "Installing site customizations."
+    echo "Installing site customizations:"
     if [ -d "$SITE_PATH" ]; then
         ( cd $SITE_PATH && tar cf - . | tar xvf - -C /mnt )
     else
