@@ -9,6 +9,6 @@ cd $(dirname $0)
 for a in $ARCH; do
     test -d $a || mkdir $a
     while read pkg _; do
-        ( cd $a && wget -N "${SITE}/${pkg}.tgz" )
+        ( cd $a && wget -N "${SITE}/${a}/${pkg}.tgz" )
     done < $LIST
 done
