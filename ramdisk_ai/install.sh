@@ -216,6 +216,12 @@ w
 q" | /mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 /mnt/usr/sbin/pwd_mkdb -p -d /mnt/etc /etc/master.passwd
 
+if grep -qs '^rtsol' /mnt/etc/hostname.*; then
+    sed -e "/^#\(net\.inet6\.ip6\.accept_rtadv\)/s//\1/" \
+        /mnt/etc/sysctl.conf >/tmp/sysctl.conf
+    cp /tmp/sysctl.conf /mnt/etc/sysctl.conf
+fi
+
 if [ "$POST_PATH" ]; then
     ftp -V -o /install.post $POST_PATH || die "failed to fetch $POST_PATH"
     grep -q '^#!/bin/ksh' install.post || die "invalid install.post"
