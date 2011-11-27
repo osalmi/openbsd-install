@@ -17,15 +17,6 @@
 PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
 #PKG_PATH=nfs://install/export/install/OpenBSD/${VNAME}/custom/packages/${ARCH}
 
-MYFQDN=`hostname`
-MYNAME=${MYFQDN%%.*}
-MYDOMAIN=${MYFQDN#*.}
-MYIPADDR=`host ${MYFQDN} | awk '/has address/ { print $4 }'`
-
-#
-# Begin
-#
-
 echo "Basic directory structure."
 mkdir -p /etc/local /usr/local/etc
 mkdir -p /export /srv
@@ -99,17 +90,6 @@ fi
 
 echo "Fixing permissions:"
 mtree -e -U -p / -f /etc/mtree/special
-
-echo -n "Creating installation notes."
-cat > /root/install-notes.log <<EOF
-Installation date:	`date`
-Installation time:	${SECONDS} seconds
-Determined ip:		${MYIPADDR}
-Determined fqdn:	${MYFQDN}
-Determined disks:	${DKDEVS}
-Determined root disk:	${ROOTDISK}
-Determined interface:	${IFDEV}
-EOF
 
 rm -f /install.{pkgs,site}
 umount /mnt 2>/dev/null

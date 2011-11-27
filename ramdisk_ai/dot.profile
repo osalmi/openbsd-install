@@ -63,5 +63,5 @@ if [ "X${DONEPROFILE}" = "X" ]; then
 	# run the install script and reboot
 	/install 2>&1 | tee /tmp/install.log
 	cp /tmp/install.log /mnt/root
-	test -f /tmp/.install_ok && reboot
+	test -f /tmp/.install_finished && reboot
 fi
