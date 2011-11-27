@@ -48,6 +48,14 @@ ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
         test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
     done
 )
+(
+    # set default ruby
+    RUBY=18
+    cd /usr/local/bin
+    for cmd in erb gem irb rake rdoc ri ruby testrb; do
+        test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
+    done
+)
 
 # silence /etc/{daily,weekly,monthly}
 for i in /etc/{daily,weekly,monthly}.local; do
