@@ -38,9 +38,11 @@ elif [ $# -eq 1 ]; then
     IFDEV=$1
 else
     # try to find first active interface
-    while ifconfig $1 | grep -q -v "status: active"; do shift; done
+    while [ $# -gt 0 ]; do
+        ifconfig $1 | grep -q "status: active" && break
+        shift
+    done
     IFDEV=$1
-
     while [ -z "$IFDEV" ]; do
         ask_which "interface" "do you wish to use" "$_ifdevs"
         if isin $resp $_ifdevs; then
