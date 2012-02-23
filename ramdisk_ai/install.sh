@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-# Copyright (c) 2005-2011 Ossi Salmi
+# Copyright (c) 2005-2012 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -101,9 +101,7 @@ SWAPSIZE=$(( ($MEMSIZE + 1) * 2 ))
 SWAPSIZE_MAX=$(( $DISKSIZE / 4 ))
 export DISKSIZE
 
-if [ $DISKSIZE -lt 4096 ]; then
-    SWAPSIZE=0
-elif [ $SWAPSIZE -gt $SWAPSIZE_MAX ]; then
+if [ $SWAPSIZE -gt $SWAPSIZE_MAX ]; then
     SWAPSIZE=$SWAPSIZE_MAX
 fi
 
@@ -114,14 +112,12 @@ write
 quit
 EOF
 
-echo "z" > /tmp/disklabel.$ROOTDISK
-[ $SWAPSIZE -gt 0 ] && cat >> /tmp/disklabel.$ROOTDISK <<EOF
+cat > /tmp/disklabel.$ROOTDISK <<EOF
+z
 a b
 
 ${SWAPSIZE}M
 
-EOF
-cat >> /tmp/disklabel.$ROOTDISK <<EOF
 a a
 
 
@@ -169,10 +165,10 @@ echo $KBD > kbdtype
 # get fqdn from dns
 cp resolv.conf.shadow resolv.conf
 cp resolv.conf.shadow /mnt/etc/resolv.conf
-_ip=$(ifconfig $IFDEV inet | sed -n '/inet/s/.* \([0-9.]*\) .*/\1/p')
-_dns=$(/mnt/usr/sbin/chroot /mnt /usr/sbin/host $_ip | grep pointer)
-HOSTNAME=$(echo $_dns | sed 's/.* pointer \([^.]*\).*/\1/')
-DOMAIN=$(echo $_dns | sed 's/.* pointer [^.]*\.\(.*\)\./\1/')
+MYIP=$(ifconfig $IFDEV inet | sed -n '/inet/s/.* \([0-9.]*\) .*/\1/p')
+MYFQDN=$(/mnt/usr/sbin/chroot /mnt /usr/sbin/host $MYIP | grep pointer)
+HOSTNAME=$(echo $MYFQDN | sed 's/.* pointer \([^.]*\).*/\1/')
+DOMAIN=$(echo $MYFQDN | sed 's/.* pointer [^.]*\.\(.*\)\./\1/')
 HOSTNAME=${HOSTNAME:-localhost}
 DOMAIN=${DOMAIN:-localdomain}
 
@@ -244,7 +240,7 @@ echo "Creating installation notes."
 cat > /mnt/root/install-notes.log <<EOF
 Installation date:	`date`
 Installation time:	${SECONDS} seconds
-Determined ip:		${_ip}
+Determined ip:		${MYIP}
 Determined fqdn:	`hostname`
 Determined disks:	${DKDEVS}
 Determined root disk:	${ROOTDISK}
