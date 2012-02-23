@@ -237,15 +237,9 @@ fi
 # Perform final steps common to both an install and an upgrade.
 finish_up
 
-echo "Creating installation notes."
-cat > /mnt/root/install-notes.log <<EOF
-Installation date:	`date`
-Installation time:	${SECONDS} seconds
-Determined ip:		${MYIP}
-Determined fqdn:	`hostname`
-Determined disks:	${DKDEVS}
-Determined root disk:	${ROOTDISK}
-Determined interface:	${IFDEV}
+cat > /mnt/root/install.notes <<EOF
+Install date: `date`
+Install time: ${SECONDS} seconds
 EOF
 
 echo -n > /tmp/.install_finished
