@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2005-2011 Ossi Salmi
+# Copyright (c) 2005-2012 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -16,10 +16,6 @@
 
 PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
 #PKG_PATH=nfs://install/export/install/OpenBSD/${VNAME}/custom/packages/${ARCH}
-
-echo "Basic directory structure."
-mkdir -p /etc/local /usr/local/etc
-mkdir -p /export /srv
 
 echo "Installing additional packages:"
 if echo ${PKG_PATH} | grep -q "^nfs:"; then
@@ -62,38 +58,20 @@ for i in /etc/{daily,weekly,monthly}.local; do
     echo "VERBOSESTATUS=0" > $i
 done
 
-echo "Configuring dhclient."
-cp /etc/dhclient.conf /etc/dhclient.conf.orig
-sed "s/PRIMARYDEV/${IFDEV}/" <${PROTODIR}/etc/dhclient.conf.in >/etc/dhclient.conf
-MYGATE=`route -n show -inet | awk '/default/ { print $2; exit }'`
-if [ "${MYGATE}" ]; then
-    echo "${MYGATE}" | grep -q "^link" && MYGATE=127.0.0.1
-    echo "supersede routers ${MYGATE};" >> /etc/dhclient.conf
-fi
-
 if [ -x /usr/local/sbin/puppetd -a -s /etc/puppet/ssl/certs/ca.pem ]; then
     echo "Bootstrapping puppet."
-    /usr/local/sbin/puppetd -o --no-report --no-daemonize --pluginsync --tags bootstrap
+    /usr/local/sbin/puppetd -o --no-report --no-daemonize \
+        --pluginsync --tags bootstrap
 fi
 
-echo -n "Serial console:"
 CONSOLE="$(dmesg | sed -n '/^com\([0-9]\): console$/s//\1/p' | sed '$!d')"
 if [ "${CONSOLE}" ]; then
-    echo " yes, redirecting console to com${CONSOLE}."
+    echo "Redirecting console to com${CONSOLE}."
     ( cd /etc
       echo "set tty com${CONSOLE}" >> boot.conf
       cp ttys ttys.orig
       sed "/^tty0${CONSOLE}/s/unknown off/vt220	on secure/" ttys.orig > ttys
       rm -f ttys.orig )
-else
-    echo " no."
-fi
-
-if dmesg | grep -q "^bios0:.*KVM"; then
-    echo "KVM detected, configuring kernel for compatibility."
-    for bsd in /bsd /bsd.mp; do
-        echo "disable mpbios\nquit" | config -ef ${bsd}
-    done
 fi
 
 echo "Fixing permissions:"
