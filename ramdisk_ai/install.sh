@@ -214,6 +214,7 @@ q" | /mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 
 if grep -qs '^rtsol' /mnt/etc/hostname.*; then
     sed -e "/^#\(net\.inet6\.ip6\.accept_rtadv\)/s//\1/" \
+        -e "/^#\(net\.inet6\.icmp6\.rediraccept\)/s//\1/" \
         /mnt/etc/sysctl.conf >/tmp/sysctl.conf
     cp /tmp/sysctl.conf /mnt/etc/sysctl.conf
 fi
