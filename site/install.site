@@ -20,7 +20,7 @@ PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
 echo "Installing additional packages:"
 if echo ${PKG_PATH} | grep -q "^nfs:"; then
     _install="`echo ${PKG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
-    mount -o ro,tcp ${_install} /mnt
+    mount -r ${_install} /mnt
     PKG_PATH=/mnt
 fi
 export PKG_PATH
