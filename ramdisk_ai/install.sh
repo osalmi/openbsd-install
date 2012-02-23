@@ -60,7 +60,7 @@ echo "dhcp" >/tmp/hostname.$IFDEV
 # mount install root if installing over nfs
 if echo $CFG_PATH | grep -q "^nfs:"; then
     _install="`echo $CFG_PATH | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
-    mount -o ro,tcp $_install /mnt2 >/dev/null 2>&1 || \
+    mount -r $_install /mnt2 >/dev/null 2>&1 || \
         die "failed to mount $_install"
     CFG_PATH=file:/mnt2/install.conf
 fi
