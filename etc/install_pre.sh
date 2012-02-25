@@ -15,7 +15,6 @@ if mkdir -p /mntold && mount -r /dev/${ROOTDISK}a /mntold; then
         etc/ssh/ssh_host_rsa_key.pub \
         etc/ssh/ssh_host_dsa_key \
         etc/ssh/ssh_host_dsa_key.pub \
-        var/db/dhcpd.leases \
         | tar xpf - -C /tmp/preserve
     )
 
