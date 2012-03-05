@@ -11,10 +11,12 @@ if mkdir -p /mntold && mount -r /dev/${ROOTDISK}a /mntold; then
         etc/puppet/puppet.conf \
         etc/ssh/ssh_host_key \
         etc/ssh/ssh_host_key.pub \
-        etc/ssh/ssh_host_rsa_key \
-        etc/ssh/ssh_host_rsa_key.pub \
         etc/ssh/ssh_host_dsa_key \
         etc/ssh/ssh_host_dsa_key.pub \
+        etc/ssh/ssh_host_ecdsa_key \
+        etc/ssh/ssh_host_ecdsa_key.pub \
+        etc/ssh/ssh_host_rsa_key \
+        etc/ssh/ssh_host_rsa_key.pub \
         | tar xpf - -C /tmp/preserve
     )
 
