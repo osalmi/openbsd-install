@@ -80,7 +80,7 @@ if [ "${CONSOLE}" ]; then
       rm -f ttys.orig )
 fi
 
-if dmesg | grep -q "^bios0:.*KVM"; then
+if dmesg | grep -q "^bios0: vendor QEMU"; then
     echo "KVM detected, configuring kernel for compatibility."
     echo "disable mpbios\nquit" | config -ef /bsd
 fi
