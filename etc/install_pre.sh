@@ -23,5 +23,9 @@ if mkdir -p /mntold && mount -r /dev/${ROOTDISK}a /mntold; then
     # get old root password hash
     ROOTPASS=`sed -n 's/^root:\([^:]*\):.*/\1/p' /mntold/etc/master.passwd`
 
+    # preserve extra local mounts
+    egrep '^[0-9a-f]+\.[a-z][[:space:]]+/[^[:space:]]+[[:space:]]+ffs' \
+        /mntold/etc/fstab > /tmp/fstab.preserve
+
     umount /mntold
 fi
