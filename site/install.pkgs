@@ -1,55 +1,41 @@
-apr-1.4.6p0         Apache Portable Runtime
-apr-util-1.4.1      companion library to APR
-bash-4.2.36         GNU Bourne Again Shell
+bash-4.2.42         GNU Bourne Again Shell
 bzip2-1.0.6         block-sorting file compressor, unencumbered
-curl-7.26.0         get files from FTP, Gopher, HTTP or HTTPS servers
+curl-7.26.0p1       get files from FTP, Gopher, HTTP or HTTPS servers
 cvsps-2.1p0         generate patchsets from CVS repositories
-cyrus-sasl-2.1.25p3-ldap RFC 2222 SASL (Simple Authentication and Security Layer)
-db-4.6.21v0         Berkeley DB package, revision 4
+cyrus-sasl-2.1.26p0-ldap RFC 2222 SASL (Simple Authentication and Security Layer)
 dmidecode-2.10      dump DMI/SMBIOS contents in human-readable format
-gd-2.0.35p0         library for dynamic creation of images
-gdbm-1.8.3p0        GNU dbm
-gettext-0.18.1p3    GNU gettext
-git-1.7.6p4         GIT - Tree History Storage Tool
-glib2-2.32.4        general-purpose utility library
+gd-2.0.35p1         library for dynamic creation of images
+gettext-0.18.2p1    GNU gettext
+git-1.8.1.2         GIT - Tree History Storage Tool
 ifstat-1.1p2        tool to monitor interface bandwidth usage
-iperf-2.0.5p0       tool for measuring maximum TCP and UDP bandwidth
-jpeg-8c             IJG's JPEG compression utilities
-libelf-0.8.13p1     read, modify, create ELF files on any arch
+jpeg-8cp1           IJG's JPEG compression utilities
 libffi-3.0.9        Foreign Function Interface
-libiconv-1.14       character set conversion library
-libidn-1.25         internationalized string handling
-libmagic-5.11       library to determine file type
-libproxy-0.4.7      library handling all the details of proxy configuration
-lua-5.1.5p0         powerful, light-weight programming language (version 5.1.5)
-mercurial-2.2.2     fast, lightweight source control management
+libiconv-1.14p0     character set conversion library
+libidn-1.26         internationalized string handling
+lua-5.2.1           powerful, light-weight programming language (version 5.2.1)
+mercurial-2.4.2     fast, lightweight source control management
 mutt-1.5.21p0v0     tty-based e-mail client, development version
-neon-0.29.6p1       HTTP and WebDAV client library, with C interface
-nmap-6.01           scan ports and fingerprint stack of network hosts
-openldap-client-2.4.31 Open source LDAP software (client)
+nmap-6.25           scan ports and fingerprint stack of network hosts
+openldap-client-2.4.33 open-source LDAP software (client)
 p5-Error-0.17018    error/exception handling in an OO-ish way
 pciutils-3.1.9      PCI bus configuration register access tools
-pcre-8.30           perl-compatible regular expression library
+pcre-8.31           perl-compatible regular expression library
 pfstat-2.3p1        packet filter statistics visualization
 pftop-0.7p9         curses-based real time state and rule display for pf
-png-1.5.10          library for manipulating PNG images
-py-openbsd-0.1.2p10 specific Python bindings for OpenBSD
+png-1.5.10p0        library for manipulating PNG images
+py-openbsd-0.1.2p11 specific Python bindings for OpenBSD
 py-setuptools-0.6.11p4v0 simplified packaging system for Python modules
-python-2.7.3p0      interpreted object-oriented programming language
-python-bsddb-2.7.3p0 Berkeley db module for Python
-python-gdbm-2.7.3p0 GNU dbm module for Python
-python-tools-2.7.3p0 extra tools for Python
+python-2.7.3p1      interpreted object-oriented programming language
 qdbm-1.8.78         high performance embedded database library
-rsync-3.0.9         mirroring/synchronization over low bandwidth links
-ruby-1.8.7.370      object oriented script language with threads
-ruby-facter-1.6.8   Ruby library for retrieving facts from operating systems
-ruby-gems-1.8.23    package management framework for the Ruby language
+rsync-3.0.9p2       mirroring/synchronization over low bandwidth links
+ruby-1.8.7.370p1    object oriented script language with threads
+ruby-facter-1.6.17p1 Ruby library for retrieving facts from operating systems
+ruby-gems-1.8.23p0  package management framework for the Ruby language
 ruby-iconv-1.8.7.370 libiconv interface for ruby
-ruby-json-1.5.3p1   JSON implementation for Ruby
-ruby-puppet-2.7.14  centralised configuration management for networks
-subversion-1.7.5p0  subversion revision control system
+ruby-json-1.7.7     JSON implementation for Ruby
+ruby-puppet-3.0.2p1 centralised configuration management for networks
 unzip-6.0p0         extract, list & test files in a ZIP archive
 vim-7.3.154p2-no_x11 vi clone, many additional features
-wget-1.13.4         retrieve files from the web via HTTP, HTTPS and FTP
+wget-1.14           retrieve files from the web via HTTP, HTTPS and FTP
 zip-3.0             create/update ZIP files compatible with PKZip(tm)
-zsh-4.3.17          Z shell, Bourne shell-compatible
+zsh-5.0.0           Z shell, Bourne shell-compatible
