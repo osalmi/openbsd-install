@@ -1,6 +1,6 @@
 
-rdroot-8192|ramdiskroot-8192|RAM-disk root FS image 8192 sectors:\
-	:ty=ramdisk:se#512:nt#2:rm#300:ns#8:nc#1024:\
-	:pa#8192:oa#0:ta=4.2BSD:ba#4096:fa#1024:\
+rdroot8|ramdiskroot8|RAM-disk root FS image, 8MB:\
+	:ty=ramdisk:se#512:nt#2:ns#140:nc#64:\
+	:pa#17920:oa#0:ta=4.2BSD:ba#17920:fa#2048:\
 	:pb#0:ob#0:tb=swap:\
-	:pc#8192:oc#0:
+	:pc#17920:oc#0:
