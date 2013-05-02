@@ -9,8 +9,7 @@ myusage() {
 }
 
 mykernel() {
-    NCPU=$(sysctl -n hw.ncpufound)
-    if [ ${NCPU} -gt 1 ]; then
+    if [ $(sysctl -n hw.ncpufound) -gt 1 ]; then
         BOOT=GENERIC.MP
     else
         BOOT=GENERIC
@@ -39,7 +38,6 @@ myrelease() {
     [ -d "${DESTDIR}" ] && rm -fr ${DESTDIR}
     [ -d "${RELEASEDIR}" ] && rm -fr ${RELEASEDIR}
     mkdir -p ${DESTDIR} ${RELEASEDIR}
-    cd /usr/src/distrib/crunch && make obj depend all install
     cd /usr/src/distrib/special/libstubs && make obj depend all install
     cd /usr/src/etc && make release
     cd /usr/src/distrib/sets && sh checkflist
