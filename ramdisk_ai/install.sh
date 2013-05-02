@@ -97,9 +97,9 @@ if [ -z "$ROOTPASS" ]; then
 fi
 
 # determine swap size (2 x memory, max 25% of disk)
-MEMSIZE=$(scan_dmesg '/real mem/s/.*(\([0-9]*\)MB)/\1/p')
-DISKSIZE=$(disklabel -p m $ROOTDISK 2>&1 | sed -n '/^  c:/s/[^0-9]*\([0-9]*\)\.[0-9]M.*/\1/p')
-SWAPSIZE=$(( ($MEMSIZE + 1) * 2 ))
+MEMSIZE=$(scan_dmesg '/^real mem/s/.* = \([0-9]*\) .*/\1/p')
+DISKSIZE=$(disklabel -p k $ROOTDISK 2>&1 | sed -n '/^  c:/s/[^0-9]*\([0-9]*\)\.[0-9]K.*/\1/p')
+SWAPSIZE=$(( ($MEMSIZE / 1024) * 2 ))
 SWAPSIZE_MAX=$(( $DISKSIZE / 4 ))
 export DISKSIZE
 
@@ -118,7 +118,7 @@ cat > /tmp/disklabel.$ROOTDISK <<EOF
 z
 a b
 
-${SWAPSIZE}M
+${SWAPSIZE}K
 
 a a
 
@@ -129,7 +129,7 @@ w
 q
 EOF
 
-echo "Labeling disk $ROOTDISK ($SWAPSIZE MB swap)."
+echo "Labeling disk $ROOTDISK ($SWAPSIZE KB swap)."
 disklabel -F /tmp/fstab -E $ROOTDISK < /tmp/disklabel.$ROOTDISK > /dev/null
 while read _pp _mp _fstype _rest; do
     [[ $_fstype == ffs ]] || continue
