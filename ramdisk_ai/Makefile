@@ -12,7 +12,7 @@ LISTS+=		${.CURDIR}/list.local
 
 .BEGIN:
 	grep "^rdroot8" /etc/disktab || cat disktab >> /etc/disktab ; \
-	sed -e "s/MINIROOTSIZE=.*/MINIROOTSIZE=17920/' \
+	sed -e 's/MINIROOTSIZE=.*/MINIROOTSIZE=17920/' \
 	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_CD > \
 	${.CURDIR}/../../../sys/arch/${MACHINE_ARCH}/conf/RAMDISK_AI ; \
 	sed -e '/^set_term$$/,$$s/^/#/' \
