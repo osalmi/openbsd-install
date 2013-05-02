@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-# Copyright (c) 2005-2012 Ossi Salmi
+# Copyright (c) 2005-2013 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,7 @@
 
 # URL to installation configuration
 #
-CFG_PATH=http://code.zebes.net/openbsd-ai/raw/tip/etc/install.conf
+CFG_PATH=http://code.osalmi.fi/openbsd-ai/raw/tip/etc/install.conf
 #CFG_PATH=nfs://install/export/install/OpenBSD/${VNAME}
 
 die() {

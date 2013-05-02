@@ -2,7 +2,7 @@
 
 ARCH="amd64 i386"
 LIST="../site/install.pkgs"
-SITE="http://ftp.eu.openbsd.org/pub/OpenBSD/5.0/packages"
+SITE="http://ftp.eu.openbsd.org/pub/OpenBSD/5.3/packages"
 
 cd $(dirname $0)
 
