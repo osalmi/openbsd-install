@@ -63,20 +63,8 @@ if [ -x /usr/local/bin/puppet -a -s /etc/puppet/ssl/certs/ca.pem ]; then
 		--onetime --pluginsync --tags bootstrap
 fi
 
-CONSOLE="$(dmesg | sed -n '/^com\([0-9]\): console$/s//\1/p' | sed '$!d')"
-if [ "${CONSOLE}" ]; then
-	echo "Redirecting console to com${CONSOLE}."
-	(
-	cd /etc
-	echo "set tty com${CONSOLE}" >> boot.conf
-	cp ttys ttys.orig
-	sed "/^tty0${CONSOLE}/s/unknown off/vt220	on secure/" ttys.orig > ttys
-	rm -f ttys.orig
-	)
-fi
-
 echo "Fixing permissions:"
-mtree -e -U -p / -f /etc/mtree/special
+mtree -Ueq -p / -f /etc/mtree/special
 
 rm -f /install.{pkgs,site}
 umount /mnt 2>/dev/null

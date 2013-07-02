@@ -55,7 +55,8 @@ fi
 ifconfig lo0 inet 127.0.0.1/8
 hostname localhost.localdomain
 dhcp_request $IFDEV || die "did not receive DHCP lease"
-echo "dhcp" >/tmp/hostname.$IFDEV
+echo dhcp >/tmp/hostname.$IFDEV
+[ "$ipv6" = "yes" ] && echo rtsol >>/tmp/hostname.$IFDEV
 
 # mount install root if installing over nfs
 if echo $CFG_PATH | grep -q "^nfs:"; then
@@ -81,7 +82,7 @@ done
 
 export ARCH IFDEV DKDEVS ROOTDISK
 
-if [ "$PRE_PATH" ]; then
+if [ -n "$PRE_PATH" ]; then
 	ftp -V -o /install.pre $PRE_PATH || die "failed to fetch $PRE_PATH"
 	grep -q '^#!/bin/ksh' install.pre || die "invalid install.pre"
 	. install.pre
@@ -96,15 +97,15 @@ if [ -z "$ROOTPASS" ]; then
 	done
 fi
 
-# determine swap size (2 x memory, max 25% of disk)
+# determine swap size (2 x memory, max 20% of disk)
 MEMSIZE=$(scan_dmesg '/^real mem/s/.* = \([0-9]*\) .*/\1/p')
 DISKSIZE=$(disklabel -p k $ROOTDISK 2>&1 | sed -n '/^  c:/s/[^0-9]*\([0-9]*\)\.[0-9]K.*/\1/p')
 SWAPSIZE=$(( ($MEMSIZE / 1024) * 2 ))
-SWAPSIZE_MAX=$(( $DISKSIZE / 4 ))
+SWAPSIZEMAX=$(( $DISKSIZE / 5 ))
 export DISKSIZE
 
-if [ $SWAPSIZE -gt $SWAPSIZE_MAX ]; then
-	SWAPSIZE=$SWAPSIZE_MAX
+if [ $SWAPSIZE -gt $SWAPSIZEMAX ]; then
+	SWAPSIZE=$SWAPSIZEMAX
 fi
 
 fdisk -e $ROOTDISK <<EOF >/dev/null
@@ -114,7 +115,7 @@ write
 quit
 EOF
 
-cat > /tmp/disklabel.$ROOTDISK <<EOF
+cat >/tmp/disklabel.$ROOTDISK <<EOF
 z
 a b
 
@@ -130,7 +131,7 @@ q
 EOF
 
 echo "Labeling disk $ROOTDISK ($SWAPSIZE KB swap)."
-disklabel -F /tmp/fstab -E $ROOTDISK < /tmp/disklabel.$ROOTDISK > /dev/null
+disklabel -F /tmp/fstab -E $ROOTDISK < /tmp/disklabel.$ROOTDISK >/dev/null
 while read _pp _mp _fstype _rest; do
 	[[ $_fstype == ffs ]] || continue
 	newfs -q ${_pp##/dev/}
@@ -151,52 +152,28 @@ done
 echo "Saving configuration files."
 
 # Save any leases obtained during install.
-( cd /var/db
-[ -f dhclient.leases ] && mv dhclient.leases /mnt/var/db/. )
-
-# Move configuration files from /tmp to /mnt/etc.
-( cd /tmp
-
-[ "$USE_IPV6" = "yes" ] && echo "rtsol" >>hostname.$IFDEV
-[ "$USE_NTPD" = "yes" ] && echo "ntpd_flags=" >>/mnt/etc/rc.conf.local
-[ "$USE_X11" = "yes" ] && \
-	sed 's/^#\(machdep\.allowaperture\)/\1/' /mnt/etc/sysctl.conf >sysctl.conf
-
-echo $KBD > kbdtype
-
-# get fqdn from dns
-cp resolv.conf.shadow resolv.conf
-cp resolv.conf.shadow /mnt/etc/resolv.conf
-MYIP=$(ifconfig $IFDEV inet | sed -n '/inet/s/.* \([0-9.]*\) .*/\1/p')
-MYFQDN=$(/mnt/usr/sbin/chroot /mnt /usr/sbin/host $MYIP | grep pointer)
-HOSTNAME=$(echo $MYFQDN | sed 's/.* pointer \([^.]*\).*/\1/')
-DOMAIN=$(echo $MYFQDN | sed 's/.* pointer [^.]*\.\(.*\)\./\1/')
-HOSTNAME=${HOSTNAME:-localhost}
-DOMAIN=${DOMAIN:-localdomain}
-
-hostname ${HOSTNAME}.${DOMAIN}
-hostname > myname
-
-cat >hosts <<EOF
-127.0.0.1	localhost
-::1		localhost
-127.0.0.1	${HOSTNAME}.${DOMAIN} ${HOSTNAME}
-::1		${HOSTNAME}.${DOMAIN} ${HOSTNAME}
-EOF
+(cd /var/db; [[ -f dhclient.leases ]] && mv dhclient.leases /mnt/var/db/. )
 
 # Append dhclient.conf to installed dhclient.conf.
 _f=dhclient.conf
-[[ -f $_f ]] && { cat $_f >>/mnt/etc/$_f ; rm $_f ; }
+[[ -f /tmp/$_f ]] && { cat /tmp/$_f >>/mnt/etc/$_f ; rm /tmp/$_f ; }
 
-# Possible files: fstab hostname.* hosts kbdtype mygate myname ttys
-#		  boot.conf resolv.conf sysctl.conf resolv.conf.tail
+# Move configuration files from /tmp to /mnt/etc.
+hostname >/tmp/myname
+echo $KBD >/tmp/kbdtype
+cp -p /tmp/resolv.conf.shadow /tmp/resolv.conf
+
+cat >/mnt/etc/hosts <<EOF
+127.0.0.1	localhost.localdomain localhost
+::1		localhost.localdomain localhost
+EOF
+
+# Possible files to copy from /tmp: fstab hostname.* kbdtype mygate
+#     myname ttys boot.conf resolv.conf sysctl.conf resolv.conf.tail
 # Save only non-empty (-s) regular (-f) files.
-for _f in fstab host* kbdtype my* ttys *.conf *.tail; do
+(cd /tmp; for _f in fstab hostname* kbdtype my* ttys *.conf *.tail; do
 	[[ -f $_f && -s $_f ]] && mv $_f /mnt/etc/.
-done )
-
-# Set the timezone
-ln -sf /usr/share/zoneinfo/$TZ /mnt/etc/localtime
+done)
 
 # Feed the random pool some junk before we read from it
 (dmesg; sysctl; route -n show; df;
@@ -207,26 +184,30 @@ echo "Generating initial host.random file."
 	bs=65536 count=1 >/dev/null 2>&1
 chmod 600 /mnt/var/db/host.random >/dev/null 2>&1
 
-echo "Setting root password."
-[ "$ROOTPASS" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
+[ -n "$CONSOLE" ] && defcons=y
+[ -n "$DISPLAY" ] && x11=y
+
+apply
+
+[ -n "$ROOTPASS" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
 echo "1,s@^root::@root:${ROOTPASS}:@\nw\nq" | \
 	/mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 /mnt/usr/sbin/pwd_mkdb -p -d /mnt/etc /etc/master.passwd
 
 if grep -qs '^rtsol' /mnt/etc/hostname.*; then
 	sed -e "/^#\(net\.inet6\.ip6\.accept_rtadv\)/s//\1/" \
-		-e "/^#\(net\.inet6\.icmp6\.rediraccept\)/s//\1/" \
+	    -e "/^#\(net\.inet6\.icmp6\.rediraccept\)/s//\1/" \
 		/mnt/etc/sysctl.conf >/tmp/sysctl.conf
 	cp /tmp/sysctl.conf /mnt/etc/sysctl.conf
 fi
 
-if [ "$POST_PATH" ]; then
+if [ -n "$POST_PATH" ]; then
 	ftp -V -o /install.post $POST_PATH || die "failed to fetch $POST_PATH"
 	grep -q '^#!/bin/ksh' install.post || die "invalid install.post"
 	. install.post
 fi
 
-if [ "$SITE_PATH" ]; then
+if [ -n "$SITE_PATH" ]; then
 	echo "Installing site customizations:"
 	if [ -d "$SITE_PATH" ]; then
 		( cd $SITE_PATH && tar cf - . | tar xvf - -C /mnt )
@@ -238,9 +219,9 @@ fi
 # Perform final steps common to both an install and an upgrade.
 finish_up
 
-cat > /mnt/root/install.notes <<EOF
+cat >/mnt/root/install.notes <<EOF
 Install date: `date`
 Install time: ${SECONDS} seconds
 EOF
 
-echo -n > /tmp/.install_finished
+echo -n >/tmp/.install_finished
