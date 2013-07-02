@@ -55,8 +55,6 @@ fi
 ifconfig lo0 inet 127.0.0.1/8
 hostname localhost.localdomain
 dhcp_request $IFDEV || die "did not receive DHCP lease"
-echo dhcp >/tmp/hostname.$IFDEV
-[ "$ipv6" = "yes" ] && echo rtsol >>/tmp/hostname.$IFDEV
 
 # mount install root if installing over nfs
 if echo $CFG_PATH | grep -q "^nfs:"; then
@@ -161,6 +159,8 @@ _f=dhclient.conf
 # Move configuration files from /tmp to /mnt/etc.
 hostname >/tmp/myname
 echo $KBD >/tmp/kbdtype
+echo dhcp >/tmp/hostname.$IFDEV
+[ "$ipv6" = "yes" ] && echo rtsol >>/tmp/hostname.$IFDEV
 cp -p /tmp/resolv.conf.shadow /tmp/resolv.conf
 
 cat >/mnt/etc/hosts <<EOF
