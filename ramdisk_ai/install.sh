@@ -20,8 +20,8 @@ CFG_PATH=http://code.osalmi.fi/openbsd-ai/raw/tip/etc/install.conf
 #CFG_PATH=nfs://install/export/install/OpenBSD/${VNAME}
 
 die() {
-    echo "Fatal error: $*"
-    exit 1
+	echo "Fatal error: $*"
+	exit 1
 }
 
 # install.sub needs to know the MODE
@@ -33,23 +33,23 @@ MODE=install
 _ifdevs=$(get_ifdevs)
 set -- $_ifdevs
 if [ $# -eq 0 ]; then
-    die "no network interfaces found"
+	die "no network interfaces found"
 elif [ $# -eq 1 ]; then
-    IFDEV=$1
+	IFDEV=$1
 else
-    # try to find first active interface
-    while [ $# -gt 0 ]; do
-        ifconfig $1 | grep -q "status: active" && break
-        shift
-    done
-    IFDEV=$1
-    while [ -z "$IFDEV" ]; do
-        ask_which "interface" "do you wish to use" "$_ifdevs"
-        if isin $resp $_ifdevs; then
-            IFDEV=$resp
-            break
-        fi
-    done
+	# try to find first active interface
+	while [ $# -gt 0 ]; do
+		ifconfig $1 | grep -q "status: active" && break
+		shift
+	done
+	IFDEV=$1
+	while [ -z "$IFDEV" ]; do
+		ask_which "interface" "do you wish to use" "$_ifdevs"
+		if isin $resp $_ifdevs; then
+			IFDEV=$resp
+			break
+		fi
+	done
 fi
 
 ifconfig lo0 inet 127.0.0.1/8
@@ -59,10 +59,10 @@ echo "dhcp" >/tmp/hostname.$IFDEV
 
 # mount install root if installing over nfs
 if echo $CFG_PATH | grep -q "^nfs:"; then
-    _install="`echo $CFG_PATH | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
-    mount -r $_install /mnt2 >/dev/null 2>&1 || \
-        die "failed to mount $_install"
-    CFG_PATH=file:/mnt2/install.conf
+	_install="`echo $CFG_PATH | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
+	mount -r $_install /mnt2 >/dev/null 2>&1 || \
+		die "failed to mount $_install"
+	CFG_PATH=file:/mnt2/install.conf
 fi
 
 ftp -V -o /install.conf $CFG_PATH || die "failed to fetch $CFG_PATH"
@@ -72,28 +72,28 @@ grep -q '^#!/bin/ksh' install.conf || die "invalid install.conf"
 # figure out target HD
 DKDEVS=$(get_dkdevs)
 for dk in wd0 sd0; do
-    if isin $dk $DKDEVS; then
-        ROOTDISK=$dk
-        break
-    fi
+	if isin $dk $DKDEVS; then
+		ROOTDISK=$dk
+		break
+	fi
 done
 [ -n "$ROOTDISK" ] || die "cannot determine target HD"
 
 export ARCH IFDEV DKDEVS ROOTDISK
 
 if [ "$PRE_PATH" ]; then
-    ftp -V -o /install.pre $PRE_PATH || die "failed to fetch $PRE_PATH"
-    grep -q '^#!/bin/ksh' install.pre || die "invalid install.pre"
-    . install.pre
+	ftp -V -o /install.pre $PRE_PATH || die "failed to fetch $PRE_PATH"
+	grep -q '^#!/bin/ksh' install.pre || die "invalid install.pre"
+	. install.pre
 fi
 
 if [ -z "$ROOTPASS" ]; then
-    while :; do
-        askpassword root
-        _rootpass="$_password"
-        [[ -n "$_password" ]] && break
-        echo "The root password must be set."
-    done
+	while :; do
+		askpassword root
+		_rootpass="$_password"
+		[[ -n "$_password" ]] && break
+		echo "The root password must be set."
+	done
 fi
 
 # determine swap size (2 x memory, max 25% of disk)
@@ -104,7 +104,7 @@ SWAPSIZE_MAX=$(( $DISKSIZE / 4 ))
 export DISKSIZE
 
 if [ $SWAPSIZE -gt $SWAPSIZE_MAX ]; then
-    SWAPSIZE=$SWAPSIZE_MAX
+	SWAPSIZE=$SWAPSIZE_MAX
 fi
 
 fdisk -e $ROOTDISK <<EOF >/dev/null
@@ -132,20 +132,20 @@ EOF
 echo "Labeling disk $ROOTDISK ($SWAPSIZE KB swap)."
 disklabel -F /tmp/fstab -E $ROOTDISK < /tmp/disklabel.$ROOTDISK > /dev/null
 while read _pp _mp _fstype _rest; do
-    [[ $_fstype == ffs ]] || continue
-    newfs -q ${_pp##/dev/}
+	[[ $_fstype == ffs ]] || continue
+	newfs -q ${_pp##/dev/}
 done < /tmp/fstab
 munge_fstab
 mount_fs "-o async"
 
 echo "Installing the sets:"
 for i in bsd bsd.mp bsd.rd; do
-    echo "* $i"
-    ftp -V -o /mnt/$i ${INSTALL_PATH}/$i
+	echo "$i"
+	ftp -V -o /mnt/$i ${INSTALL_PATH}/$i
 done
 for i in $THESETS; do
-    echo "* ${i}${VERSION}.tgz"
-    ftp -V -o - ${INSTALL_PATH}/$i${VERSION}.tgz | tar zxphf - -C /mnt
+	echo "${i}${VERSION}.tgz"
+	ftp -V -o - ${INSTALL_PATH}/$i${VERSION}.tgz | tar zxphf - -C /mnt
 done
 
 echo "Saving configuration files."
@@ -160,7 +160,7 @@ echo "Saving configuration files."
 [ "$USE_IPV6" = "yes" ] && echo "rtsol" >>hostname.$IFDEV
 [ "$USE_NTPD" = "yes" ] && echo "ntpd_flags=" >>/mnt/etc/rc.conf.local
 [ "$USE_X11" = "yes" ] && \
-    sed 's/^#\(machdep\.allowaperture\)/\1/' /mnt/etc/sysctl.conf >sysctl.conf
+	sed 's/^#\(machdep\.allowaperture\)/\1/' /mnt/etc/sysctl.conf >sysctl.conf
 
 echo $KBD > kbdtype
 
@@ -209,31 +209,30 @@ chmod 600 /mnt/var/db/host.random >/dev/null 2>&1
 
 echo "Setting root password."
 [ "$ROOTPASS" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
-echo "1,s@^root::@root:${ROOTPASS}:@
-w
-q" | /mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
+echo "1,s@^root::@root:${ROOTPASS}:@\nw\nq" | \
+	/mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
 /mnt/usr/sbin/pwd_mkdb -p -d /mnt/etc /etc/master.passwd
 
 if grep -qs '^rtsol' /mnt/etc/hostname.*; then
-    sed -e "/^#\(net\.inet6\.ip6\.accept_rtadv\)/s//\1/" \
-        -e "/^#\(net\.inet6\.icmp6\.rediraccept\)/s//\1/" \
-        /mnt/etc/sysctl.conf >/tmp/sysctl.conf
-    cp /tmp/sysctl.conf /mnt/etc/sysctl.conf
+	sed -e "/^#\(net\.inet6\.ip6\.accept_rtadv\)/s//\1/" \
+		-e "/^#\(net\.inet6\.icmp6\.rediraccept\)/s//\1/" \
+		/mnt/etc/sysctl.conf >/tmp/sysctl.conf
+	cp /tmp/sysctl.conf /mnt/etc/sysctl.conf
 fi
 
 if [ "$POST_PATH" ]; then
-    ftp -V -o /install.post $POST_PATH || die "failed to fetch $POST_PATH"
-    grep -q '^#!/bin/ksh' install.post || die "invalid install.post"
-    . install.post
+	ftp -V -o /install.post $POST_PATH || die "failed to fetch $POST_PATH"
+	grep -q '^#!/bin/ksh' install.post || die "invalid install.post"
+	. install.post
 fi
 
 if [ "$SITE_PATH" ]; then
-    echo "Installing site customizations:"
-    if [ -d "$SITE_PATH" ]; then
-        ( cd $SITE_PATH && tar cf - . | tar xvf - -C /mnt )
-    else
-        ftp -V -o - $SITE_PATH | tar xzpvf - -C /mnt
-    fi
+	echo "Installing site customizations:"
+	if [ -d "$SITE_PATH" ]; then
+		( cd $SITE_PATH && tar cf - . | tar xvf - -C /mnt )
+	else
+		ftp -V -o - $SITE_PATH | tar xzpvf - -C /mnt
+	fi
 fi
 
 # Perform final steps common to both an install and an upgrade.

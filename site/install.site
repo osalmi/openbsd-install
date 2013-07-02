@@ -19,9 +19,9 @@ PKG_PATH=http://ftp.eu.openbsd.org/pub/OpenBSD/${VNAME}/packages/${ARCH}
 
 echo "Installing additional packages:"
 if echo ${PKG_PATH} | grep -q "^nfs:"; then
-    _install="`echo ${PKG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
-    mount -r ${_install} /mnt
-    PKG_PATH=/mnt
+	_install="`echo ${PKG_PATH} | sed "s@nfs://\([^/]*\)\(.*\)@\1:\2@"`"
+	mount -r ${_install} /mnt
+	PKG_PATH=/mnt
 fi
 export PKG_PATH
 ldconfig /usr/X11R6/lib /usr/local/lib
@@ -36,41 +36,43 @@ ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
 ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
 
 (
-    # set default python
-    PYTHON=2.7
-    cd /usr/local/bin
-    for cmd in idle pydoc python python-config; do
-        test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
-    done
+	# set default python
+	PYTHON=2.7
+	cd /usr/local/bin
+	for cmd in idle pydoc python python-config; do
+		test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
+	done
 )
 (
-    # set default ruby
-    RUBY=18
-    cd /usr/local/bin
-    for cmd in erb gem irb rake rdoc ri ruby testrb; do
-        test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
-    done
+	# set default ruby
+	RUBY=18
+	cd /usr/local/bin
+	for cmd in erb gem irb rake rdoc ri ruby testrb; do
+		test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
+	done
 )
 
 # silence /etc/{daily,weekly,monthly}
 for i in /etc/{daily,weekly,monthly}.local; do
-    echo "VERBOSESTATUS=0" > $i
+	echo "VERBOSESTATUS=0" > $i
 done
 
 if [ -x /usr/local/bin/puppet -a -s /etc/puppet/ssl/certs/ca.pem ]; then
-    echo "Bootstrapping puppet."
-    /usr/local/bin/puppet agent --no-daemonize --no-report \
-        --onetime --pluginsync --tags bootstrap
+	echo "Bootstrapping puppet."
+	/usr/local/bin/puppet agent --no-daemonize --no-report \
+		--onetime --pluginsync --tags bootstrap
 fi
 
 CONSOLE="$(dmesg | sed -n '/^com\([0-9]\): console$/s//\1/p' | sed '$!d')"
 if [ "${CONSOLE}" ]; then
-    echo "Redirecting console to com${CONSOLE}."
-    ( cd /etc
-      echo "set tty com${CONSOLE}" >> boot.conf
-      cp ttys ttys.orig
-      sed "/^tty0${CONSOLE}/s/unknown off/vt220	on secure/" ttys.orig > ttys
-      rm -f ttys.orig )
+	echo "Redirecting console to com${CONSOLE}."
+	(
+	cd /etc
+	echo "set tty com${CONSOLE}" >> boot.conf
+	cp ttys ttys.orig
+	sed "/^tty0${CONSOLE}/s/unknown off/vt220	on secure/" ttys.orig > ttys
+	rm -f ttys.orig
+	)
 fi
 
 echo "Fixing permissions:"
