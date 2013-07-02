@@ -160,7 +160,7 @@ _f=dhclient.conf
 hostname >/tmp/myname
 echo $KBD >/tmp/kbdtype
 echo dhcp >/tmp/hostname.$IFDEV
-[ "$ipv6" = "yes" ] && echo rtsol >>/tmp/hostname.$IFDEV
+[ "$ipv6" = "y" ] && echo rtsol >>/tmp/hostname.$IFDEV
 cp -p /tmp/resolv.conf.shadow /tmp/resolv.conf
 
 cat >/mnt/etc/hosts <<EOF
