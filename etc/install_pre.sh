@@ -27,5 +27,5 @@ if mkdir -p /mntold && mount -r /dev/${ROOTDISK}a /mntold; then
 	egrep '^(/dev/[sw]d[0-9]+[a-z]|[0-9a-f]+\.[a-z])[[:space:]]+/[^[:space:]]+[[:space:]]+ffs' \
 		/mntold/etc/fstab > /tmp/fstab.preserve
 
-	umount /mntold && rmdir /mntold
+	umount /mntold
 fi
