@@ -180,7 +180,7 @@ done)
 	ifconfig -A; hostname) >/mnt/dev/arandom 2>&1
 
 echo "Generating initial host.random file."
-/mnt/bin/dd if=/mnt/dev/arandom of=/mnt/var/db/host.random \
+dd if=/mnt/dev/arandom of=/mnt/var/db/host.random \
 	bs=65536 count=1 >/dev/null 2>&1
 chmod 600 /mnt/var/db/host.random >/dev/null 2>&1
 
@@ -191,7 +191,7 @@ apply
 
 [ -n "$ROOTPASS" ] || ROOTPASS=`/mnt/usr/bin/encrypt -b 8 -- "$_rootpass"`
 echo "1,s@^root::@root:${ROOTPASS}:@\nw\nq" | \
-	/mnt/bin/ed /mnt/etc/master.passwd 2>/dev/null
+	ed /mnt/etc/master.passwd 2>/dev/null
 /mnt/usr/sbin/pwd_mkdb -p -d /mnt/etc /etc/master.passwd
 
 if grep -qs '^rtsol' /mnt/etc/hostname.*; then

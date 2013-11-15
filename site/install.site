@@ -45,7 +45,7 @@ ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
 )
 (
 	# set default ruby
-	RUBY=18
+	RUBY=19
 	cd /usr/local/bin
 	for cmd in erb gem irb rake rdoc ri ruby testrb; do
 		test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
