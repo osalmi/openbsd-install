@@ -78,7 +78,14 @@ for dk in wd0 sd0; do
 done
 [ -n "$ROOTDISK" ] || die "cannot determine target HD"
 
-export ARCH IFDEV DKDEVS ROOTDISK
+# determine swap size (2 x memory, max 20% of disk)
+MEMSIZE=$(scan_dmesg '/real mem/s/.*(\([0-9]*\)MB)/\1/p')
+ROOTSIZE=$(disklabel -p m $ROOTDISK | sed -n '/^  c:/s/[^0-9]*\([0-9]*\)\.[0-9]M.*/\1/p')
+SWAPSIZE=$(( $MEMSIZE * 2 ))
+SWAPSIZEMAX=$(( $ROOTSIZE / 5 ))
+[ $SWAPSIZE -gt $SWAPSIZEMAX ] && SWAPSIZE=$SWAPSIZEMAX
+
+export ARCH IFDEV DKDEVS ROOTDISK ROOTSIZE
 
 if [ -n "$PRE_PATH" ]; then
 	ftp -V -o /install.pre $PRE_PATH || die "failed to fetch $PRE_PATH"
@@ -95,17 +102,7 @@ if [ -z "$ROOTPASS" ]; then
 	done
 fi
 
-# determine swap size (2 x memory, max 20% of disk)
-MEMSIZE=$(scan_dmesg '/^real mem/s/.* = \([0-9]*\) .*/\1/p')
-DISKSIZE=$(disklabel -p k $ROOTDISK 2>&1 | sed -n '/^  c:/s/[^0-9]*\([0-9]*\)\.[0-9]K.*/\1/p')
-SWAPSIZE=$(( ($MEMSIZE / 1024) * 2 ))
-SWAPSIZEMAX=$(( $DISKSIZE / 5 ))
-export DISKSIZE
-
-if [ $SWAPSIZE -gt $SWAPSIZEMAX ]; then
-	SWAPSIZE=$SWAPSIZEMAX
-fi
-
+# erase and label the disk
 fdisk -e $ROOTDISK <<EOF >/dev/null
 reinit
 update
@@ -117,7 +114,7 @@ cat >/tmp/disklabel.$ROOTDISK <<EOF
 z
 a b
 
-${SWAPSIZE}K
+${SWAPSIZE}M
 
 a a
 
@@ -128,7 +125,7 @@ w
 q
 EOF
 
-echo "Labeling disk $ROOTDISK ($SWAPSIZE KB swap)."
+echo "Labeling disk $ROOTDISK ($SWAPSIZE MB swap)."
 disklabel -F /tmp/fstab -E $ROOTDISK < /tmp/disklabel.$ROOTDISK >/dev/null
 while read _pp _mp _fstype _rest; do
 	[[ $_fstype == ffs ]] || continue
