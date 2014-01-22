@@ -63,6 +63,10 @@ if [ -x /usr/local/bin/puppet -a -s /etc/puppet/ssl/certs/ca.pem ]; then
 		--onetime --pluginsync --tags bootstrap
 fi
 
+echo "Enabling softdep on FFS mounts."
+awk '{ if($3 == "ffs" && $4 == "rw") $4 = "rw,softdep"; print }' \
+	/etc/fstab > /tmp/fstab && mv /tmp/fstab /etc/fstab
+
 echo "Fixing permissions:"
 mtree -Ueq -p / -f /etc/mtree/special
 
