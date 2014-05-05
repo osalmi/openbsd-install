@@ -1,6 +1,0 @@
-
-rdroot4|ramdiskroot4|RAM-disk root FS image, 4MB:\
-	:ty=ramdisk:se#512:nt#2:ns#140:nc#32:\
-	:pa#8960:oa#0:ta=4.2BSD:ba#8960:fa#1024:\
-	:pb#0:ob#0:tb=swap:\
-	:pc#8960:oc#0:
