@@ -55,7 +55,7 @@ pre_preserve() {
 			continue
 		fi
 
-		if [[ -d /mnt2/etc/puppet ]]; then
+		if [[ -d /mnt2/etc/puppet/ssl ]]; then
 			mkdir -p /tmp2/preserve
 			( cd /mnt2 &&
 				tar cf - \
