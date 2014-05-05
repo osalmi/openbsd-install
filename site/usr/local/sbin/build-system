@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ksh
 
 myusage() {
     echo "Usage: `basename $0` <target>"
@@ -14,7 +14,7 @@ mysrc() {
     BRANCH="OPENBSD_`uname -r | sed 's/\./_/'`"
 
     cd /usr || exit 1
-    if [ -d src/CVS ]; then
+    if [[ -d src/CVS ]]; then
         cd src && cvs -q up -r $BRANCH -Pd
     else
         cvs -qd $SERVER get -r $BRANCH -P src
@@ -22,18 +22,15 @@ mysrc() {
 }
 
 mykernel() {
-    if [ $(sysctl -n hw.ncpufound) -gt 1 ]; then
-        BOOT=GENERIC.MP
+    if [[ $(sysctl -n hw.ncpufound) -gt 1 ]]; then
+        KERNEL=GENERIC.MP
     else
-        BOOT=GENERIC
+        KERNEL=GENERIC
     fi
-    for kernel in GENERIC GENERIC.MP; do
-        cd /usr/src/sys/arch/${MYARCH}/conf
-        config ${kernel}
-        cd /usr/src/sys/arch/${MYARCH}/compile/${kernel}
-        make clean depend all
-        test ${kernel} = ${BOOT} && make install
-    done
+    cd /usr/src/sys/arch/${MYARCH}/conf
+    config ${KERNEL}
+    cd /usr/src/sys/arch/${MYARCH}/compile/${KERNEL}
+    make clean depend all install
 }
 
 mysystem() {
@@ -45,11 +42,11 @@ mysystem() {
 
 myrelease() {
     MYDATE=`date +%Y%m%d`
-    export DESTDIR="/var/tmp/build-dest-${MYDATE}/${MYARCH}"
-    export RELEASEDIR="/var/tmp/build-release-${MYDATE}/${MYARCH}"
+    export DESTDIR="/var/tmp/dest-${MYDATE}/${MYARCH}"
+    export RELEASEDIR="/var/tmp/release-${MYDATE}/${MYARCH}"
 
-    [ -d "${DESTDIR}" ] && rm -fr ${DESTDIR}
-    [ -d "${RELEASEDIR}" ] && rm -fr ${RELEASEDIR}
+    [[ -d ${DESTDIR} ]] && rm -fr ${DESTDIR}
+    [[ -d ${RELEASEDIR} ]] && rm -fr ${RELEASEDIR}
     mkdir -p ${DESTDIR} ${RELEASEDIR}
     cd /usr/src/distrib/special/libstubs && make obj depend all install
     cd /usr/src/etc && make release

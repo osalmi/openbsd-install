@@ -1,40 +1,47 @@
-bash-4.2.45         GNU Bourne Again Shell
+augeas-1.2.0        configuration editing tool and API
+bash-4.2.45p0       GNU Bourne Again Shell
 bzip2-1.0.6p0       block-sorting file compressor, unencumbered
-curl-7.26.0p3       get files from FTP, Gopher, HTTP or HTTPS servers
+curl-7.34.0p0       get files from FTP, Gopher, HTTP or HTTPS servers
 cvsps-2.1p0         generate patchsets from CVS repositories
-cyrus-sasl-2.1.26p8-ldap RFC 2222 SASL (Simple Authentication and Security Layer)
+cyrus-sasl-2.1.26p10-ldap RFC 2222 SASL (Simple Authentication and Security Layer)
 dmidecode-2.12      dump DMI/SMBIOS contents in human-readable format
-facter-1.7.2        Ruby library for retrieving facts from operating systems
-gettext-0.18.2p3    GNU gettext
-git-1.8.3.3         GIT - Tree History Storage Tool
+facter-1.7.4p0      Ruby library for retrieving facts from operating systems
+gettext-0.18.2p4    GNU gettext
+git-1.8.5.3         GIT - Tree History Storage Tool
+gtar-1.27p0         GNU version of the traditional tape archiver
 ifstat-1.1p2        tool to monitor interface bandwidth usage
-libffi-3.0.9p5      Foreign Function Interface
-libiconv-1.14p0     character set conversion library
-libidn-1.27         internationalized string handling
-libyaml-0.1.4       YAML 1.1 parser and emitter written in C
-lua-5.2.2           powerful, light-weight programming language (version 5.2.2)
-mercurial-2.6.3     fast, lightweight source control management
-mutt-1.5.21p4v0     tty-based e-mail client, development version
-nmap-6.25p0         scan ports and fingerprint stack of network hosts
-openldap-client-2.4.35p1 open-source LDAP software (client)
+libffi-3.0.9p6      Foreign Function Interface
+libiconv-1.14p1     character set conversion library
+libidn-1.28p0       internationalized string handling
+libxml-2.9.1        XML parsing library
+libyaml-0.1.4p0     YAML 1.1 parser and emitter written in C
+lua-5.2.3           powerful, light-weight programming language (version 5.2.3)
+mercurial-2.8.2     fast, lightweight source control management
+mutt-1.5.22p0v0     tty-based e-mail client, development version
+nmap-6.40p0         scan ports and fingerprint stack of network hosts
+openldap-client-2.4.38 open-source LDAP software (client)
 p5-Error-0.17019    error/exception handling in an OO-ish way
 pciutils-3.1.9      PCI bus configuration register access tools
 pcre-8.33           perl-compatible regular expression library
-pftop-0.7p11        curses-based real time state and rule display for pf
-puppet-3.2.3        centralised configuration management for networks
-py-openbsd-0.1.2p11 specific Python bindings for OpenBSD
-py-setuptools-0.6.11p5v0 simplified packaging system for Python modules
-python-2.7.5        interpreted object-oriented programming language
+pftop-0.7p12        curses-based real time state and rule display for pf
+puppet-3.4.2        centralised configuration management for networks
+py-openbsd-0.1.2p13 specific Python bindings for OpenBSD
+py-setuptools-1.1.6v0 simplified packaging system for Python modules
+python-2.7.6p0      interpreted object-oriented programming language
 qdbm-1.8.78         high performance embedded database library
-rsync-3.0.9p3       mirroring/synchronization over low bandwidth links
-ruby-1.9.3.448      object oriented script language with threads
-ruby19-deep_merge-1.0.0 recursively merge hashes
-ruby19-hiera-1.2.1p3 simple pluggable hierarchical database
-ruby19-json-1.7.7   JSON implementation for Ruby
-ruby19-json_pure-1.7.6 JSON implementation for Ruby
-ruby19-rgen-0.6.2p0 framework for Model Driven Software Development
-unzip-6.0p2         extract, list & test files in a ZIP archive
-vim-7.3.850-no_x11  vi clone, many additional features
-wget-1.14p0         retrieve files from the web via HTTP, HTTPS and FTP
+quirks-1.113        exceptions to pkg_add rules
+rsync-3.1.0         mirroring/synchronization over low bandwidth links
+ruby-1.9.3.484p0    object oriented script language with threads
+ruby19-augeas-0.5.0p3 provider bindings for Augeas
+ruby19-deep_merge-1.0.0p0 recursively merge hashes
+ruby19-hiera-1.3.1  simple pluggable hierarchical database
+ruby19-json-1.7.7p2 JSON implementation for Ruby
+ruby19-json_pure-1.7.6p0 JSON implementation for Ruby
+ruby19-rgen-0.6.6   framework for Model Driven Software Development
+ruby19-shadow-2.3.2p0 module to access shadow passwords
+unzip-6.0p3         extract, list & test files in a ZIP archive
+vim-7.4.135p0-no_x11 vi clone, many additional features
+wget-1.15           retrieve files from the web via HTTP, HTTPS and FTP
+xz-5.0.5p0          LZMA compression and decompression tools
 zip-3.0             create/update ZIP files compatible with PKZip(tm)
-zsh-5.0.0           Z shell, Bourne shell-compatible
+zsh-5.0.2           Z shell, Bourne shell-compatible
