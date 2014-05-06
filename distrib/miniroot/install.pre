@@ -6,11 +6,11 @@ pre_prepconf() {
 	cat > /install.conf <<EOF
 Choose your keyboard = sv
 System hostname = localhost
-Start sshd(8) = yes
 Start ntpd(8) = yes
 Use (W)hole disk, = whole
 Location of sets = http
-Set name(s) = all
+Server = ftp.eu.openbsd.org
+What timezone are you in = UTC
 EOF
 
 	[[ -n "$CONSOLE" ]] && \
@@ -89,7 +89,7 @@ pre_disklabel() {
 	_swapmax=$(( $_rootsize / 5 ))
 	[[ $_swapsize -gt $_swapmax ]] && _swapsize=$_swapmax
 
-	echo "Determined swap size: ${_swapsize}MB"
+	echo "Determined swap size: ${_swapsize}MB."
 
 	cat > /tmp/disklabel.${ROOTDISK} <<EOF
 z
