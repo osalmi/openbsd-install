@@ -1,5 +1,5 @@
 # Site specific customizations
-SITEPKG=http://code.osalmi.fi/openbsd-ai/downloads/site${VERSION}.tgz
+SITEPKG=http://boot.jkry.org/OpenBSD/${VNAME}/site${VERSION}.tgz
 
 if [[ -d /tmp2/preserve ]]; then
 	echo "Restoring preserved files:"
