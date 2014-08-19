@@ -1,7 +1,7 @@
 mkdir -p /tmp2 && mount -t tmpfs tmpfs /tmp2
 
 pre_prepconf() {
-	local _dk _hash _password
+	local _dk _hash _password _ifdevs _ifdev
 
 	cat > /install.conf <<EOF
 Choose your keyboard = sv
@@ -37,6 +37,28 @@ EOF
 		done
 		echo "Password for root = $_password" >> /install.conf
 	fi
+
+	_ifdevs=$(get_ifdevs)
+	set -- $_ifdevs
+	if [ $# -eq 1 ]; then
+		_ifdev=$1
+	else
+		# try to find first active interface
+		while [ $# -gt 0 ]; do
+			ifconfig $1 | grep -q "status: active" && break
+			shift
+		done
+		_ifdev=$1
+		while [ -z "$_ifdev" ]; do
+			auto=false ask_which "network interface" \
+				"do you wish to configure" "$_ifdevs"
+			if isin $resp $_ifdevs; then
+				_ifdev=$resp
+				break
+			fi
+		done
+	fi
+	echo "Which network interface = $_ifdev" >> /install.conf
 }
 
 pre_preserve() {
