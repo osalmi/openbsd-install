@@ -2,7 +2,8 @@
 
 myusage() {
     echo "Usage: `basename $0` <target>"
-    echo "  src         - checkout or update sources"
+    echo "  src         - checkout or update /usr/src"
+    echo "  ports       - checkout or update /usr/ports"
     echo "  kernel      - build and install kernel"
     echo "  system      - build and install system"
     echo "  release     - build release files"
@@ -10,14 +11,17 @@ myusage() {
 }
 
 mysrc() {
+    local _dir
+    _dir="${1:-src}"
+
     SERVER="anoncvs@anoncvs.eu.openbsd.org:/cvs"
     BRANCH="OPENBSD_`uname -r | sed 's/\./_/'`"
 
     cd /usr || exit 1
-    if [[ -d src/CVS ]]; then
-        cd src && cvs -q up -r $BRANCH -Pd
+    if [[ -d $_dir/CVS ]]; then
+        cd $_dir && cvs -q up -r $BRANCH -Pd
     else
-        cvs -qd $SERVER get -r $BRANCH -P src
+        cvs -qd $SERVER get -r $BRANCH -P $_dir
     fi
 }
 
@@ -59,7 +63,11 @@ umask 022
 
 case $1 in
     src)
-    mysrc
+    mysrc src
+    ;;
+
+    ports)
+    mysrc ports
     ;;
 
     kernel)
