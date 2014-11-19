@@ -1,0 +1,150 @@
+--- distrib/amd64/common/install.md.orig	Sun Jul 20 20:12:41 2014
++++ distrib/amd64/common/install.md	Thu Nov  6 14:17:39 2014
+@@ -99,6 +99,10 @@
+ 
+ 	_f=/tmp/fstab.$_disk
+ 	if [[ $_disk == $ROOTDISK ]]; then
++		if [[ -s /tmp/disklabel.$_disk ]]; then
++			disklabel $FSTABFLAG $_f -E $_disk < /tmp/disklabel.$_disk >/dev/null
++			return
++		fi
+ 		while :; do
+ 			echo "The auto-allocated layout for $_disk is:"
+ 			disklabel -h -A $_disk | egrep "^#  |^  [a-p]:"
+--- distrib/amd64/common/list.orig	Sun Jul 20 02:40:23 2014
++++ distrib/amd64/common/list	Thu Nov  6 14:17:39 2014
+@@ -80,4 +80,6 @@
+ SCRIPT	${CURDIR}/../../miniroot/upgrade.sh	upgrade
+ SCRIPT	${CURDIR}/../../miniroot/install.sh	install
+ SCRIPT	${CURDIR}/../../miniroot/install.sub	install.sub
++SCRIPT	${CURDIR}/../../miniroot/install.pre	install.pre
++SCRIPT	${CURDIR}/../../miniroot/install.post	install.post
+ SPECIAL	chmod 755 install upgrade
+--- distrib/amd64/ramdisk_cd/list.local.orig	Sun Jan 19 00:33:40 2014
++++ distrib/amd64/ramdisk_cd/list.local	Thu Nov  6 14:17:39 2014
+@@ -10,6 +10,7 @@
+ LINK	instbin					sbin/mount_ext2fs
+ LINK	instbin					sbin/mount_msdos
+ LINK	instbin					sbin/mount_udf
++LINK	instbin					sbin/mount_tmpfs
+ 
+ COPY	${DESTDIR}/etc/firmware/kue		etc/firmware/kue
+ 
+--- distrib/i386/common/install.md.orig	Sun Jul 20 20:12:41 2014
++++ distrib/i386/common/install.md	Thu Nov  6 14:17:39 2014
+@@ -99,6 +99,10 @@
+ 
+ 	_f=/tmp/fstab.$_disk
+ 	if [[ $_disk == $ROOTDISK ]]; then
++		if [[ -s /tmp/disklabel.$_disk ]]; then
++			disklabel $FSTABFLAG $_f -E $_disk < /tmp/disklabel.$_disk >/dev/null
++			return
++		fi
+ 		while :; do
+ 			echo "The auto-allocated layout for $_disk is:"
+ 			disklabel -h -A $_disk | egrep "^#  |^  [a-p]:"
+--- distrib/i386/common/list.orig	Sun Jul 20 02:40:23 2014
++++ distrib/i386/common/list	Thu Nov  6 14:17:39 2014
+@@ -80,4 +80,6 @@
+ SCRIPT	${CURDIR}/../../miniroot/upgrade.sh	upgrade
+ SCRIPT	${CURDIR}/../../miniroot/install.sh	install
+ SCRIPT	${CURDIR}/../../miniroot/install.sub	install.sub
++SCRIPT	${CURDIR}/../../miniroot/install.pre	install.pre
++SCRIPT	${CURDIR}/../../miniroot/install.post	install.post
+ SPECIAL	chmod 755 install upgrade
+--- distrib/i386/ramdisk_cd/list.local.orig	Sun Jan 19 00:33:40 2014
++++ distrib/i386/ramdisk_cd/list.local	Thu Nov  6 14:17:39 2014
+@@ -6,6 +6,7 @@
+ LINK	instbin					sbin/ping6
+ LINK	instbin					sbin/rtsol
+ LINK	instbin					sbin/mount_udf
++LINK	instbin					sbin/mount_tmpfs
+ LINK	instbin					sbin/restore
+ LINK	instbin					sbin/bioctl
+ 
+--- distrib/miniroot/dot.profile.orig	Wed Jul 16 14:19:05 2014
++++ distrib/miniroot/dot.profile	Thu Nov  6 14:17:39 2014
+@@ -69,7 +69,7 @@
+ 	# after a timeout, but only the very first time around.
+ 	timeout=false
+ 	timer_pid=
+-	if [ ! -f /tmp/noai ] && ifconfig netboot >/dev/null 2>&1; then
++	if [ ! -f /tmp/noai ]; then # && ifconfig netboot >/dev/null 2>&1; then
+ 		echo "Starting non-interactive mode in 5 seconds..."
+ 		>/tmp/noai
+ 
+--- distrib/miniroot/install.sh.orig	Tue Jul 22 10:03:56 2014
++++ distrib/miniroot/install.sh	Thu Nov  6 14:17:39 2014
+@@ -98,6 +98,7 @@
+ 	# /tmp/fstab.$DISK is created here with 'disklabel -f' or
+ 	# 'disklabel -F' depending on the value of $FSTABFLAG.
+ 	rm -f /tmp/*.$DISK
++	pre_disklabel
+ 	md_prep_disklabel $DISK || { DISK= ; continue ; }
+ 
+ 	# Make sure there is a '/' mount point.
+@@ -312,6 +313,9 @@
+ if grep -qs '^rtsol' /mnt/etc/hostname.*; then
+ 	echo 'net.inet6.icmp6.rediraccept=1 # 1=Accept IPv6 ICMP redirects (for hosts)' >>/mnt/etc/sysctl.conf
+ fi
++
++echo "done."
++. install.post
+ 
+ # Perform final steps common to both an install and an upgrade.
+ finish_up
+--- distrib/miniroot/install.sub.orig	Mon Jul 28 14:12:14 2014
++++ distrib/miniroot/install.sub	Thu Nov  6 14:23:06 2014
+@@ -88,6 +88,7 @@
+ #	MDXAPERTURE - set machdep.allowaperture=value in sysctl.conf
+ #	NCPU	    - the number of cpus for mp capable arches
+ . install.md
++. install.pre
+ 
+ set_term() {
+ 	local _layouts
+@@ -2082,6 +2083,10 @@
+ 	local _f _ifdev _mac _mode _server _lf
+ 	[[ -x /sbin/dhclient ]] || return
+ 
++	action=install
++	pre_prepconf
++	return 0
++
+ 	_ifdev=$(get_ifdevs netboot)
+ 	if [[ -z $_ifdev ]]; then
+ 		set -- $(get_ifdevs)
+@@ -2174,6 +2179,9 @@
+ 	donetconfig
+ 
+ 	((NIFS != 0)) && startcgiinfo
++
++	echo
++	pre_preserve
+ 
+ 	echo
+ 	while :; do
+--- sys/arch/amd64/conf/RAMDISK_CD.orig	Wed Jul 16 14:59:41 2014
++++ sys/arch/amd64/conf/RAMDISK_CD	Thu Nov  6 14:17:39 2014
+@@ -22,6 +22,9 @@
+ option		UDF
+ option		MSDOSFS		# MS-DOS file system
+ 
++option		DIAGNOSTIC
++option		TMPFS
++
+ option		INET		# IP + ICMP + TCP + UDP
+ option		INET6		# IPv6 (needs INET)
+ 
+--- sys/arch/i386/conf/RAMDISK_CD.orig	Wed Jul 16 14:59:41 2014
++++ sys/arch/i386/conf/RAMDISK_CD	Thu Nov  6 14:17:39 2014
+@@ -23,6 +23,9 @@
+ option		UDF		# UDF (DVD) file system
+ option		MSDOSFS		# MS-DOS file system
+ 
++option		DIAGNOSTIC
++option		TMPFS
++
+ option		INET		# IP + ICMP + TCP + UDP
+ option		INET6		# IPv6 (needs INET)
+ 
