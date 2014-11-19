@@ -7,10 +7,8 @@ pre_prepconf() {
 Choose your keyboard = sv
 System hostname = localhost
 Start ntpd(8) = yes
-NTP server = pool.ntp.org
-Use (W)hole disk, = whole
 Location of sets = http
-Server = ftp.eu.openbsd.org
+HTTP Server = ftp.eu.openbsd.org
 Set name(s) = all
 What timezone are you in = UTC
 EOF
