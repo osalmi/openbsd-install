@@ -1,0 +1,145 @@
+# Site specific customizations
+SITEPKG=http://boot.jkry.org/OpenBSD/${VNAME}/site${VERSION}.tgz
+
+auto_configure() {
+	local _dk _hash _password _ifdevs _ifdev
+
+	[[ -n "$CONSOLE" ]] && \
+		echo "Change the default console = y" >> /auto_install.conf
+
+	for _dk in $(get_dkdevs); do
+		makedev $_dk || exit
+		mount -r /dev/${_dk}a /mnt2 2>/dev/null || continue
+		_hash=
+		[[ -s /mnt2/etc/master.passwd ]] && \
+			_hash=$(sed -n 's/^root:\([^:]*\):.*/\1/p' /mnt2/etc/master.passwd)
+		umount -f /mnt2
+		if [[ -n "$_hash" ]]; then
+			echo "Password for root = $_hash" >> /auto_install.conf
+			break
+		fi
+	done
+
+	if [[ -z "$_hash" ]]; then
+		while :; do
+			AUTO=false RESPFILE= askpassword \
+				"Password for root account?"
+			[[ -n "$_password" ]] && break
+			echo "The root password must be set."
+		done
+		echo "Password for root = $_password" >> /auto_install.conf
+	fi
+
+	_ifdevs=$(get_ifdevs)
+	set -- $_ifdevs
+	if [[ $# -eq 1 ]]; then
+		_ifdev=$1
+	else
+		# try to find first active interface
+		while [[ $# -gt 0 ]]; do
+			ifconfig $1 | grep -q "status: active" && break
+			shift
+		done
+		_ifdev=$1
+		while [[ -z "$_ifdev" ]]; do
+			AUTO=false RESPFILE= ask_which "network interface" \
+				"do you wish to configure" "$_ifdevs"
+			if isin $resp $_ifdevs; then
+				_ifdev=$resp
+				break
+			fi
+		done
+	fi
+	echo "Which network interface = $_ifdev" >> /install.conf
+}
+
+
+auto_disklabel() {
+	local _memsize _rootsize _swapsize _swapmax
+
+	# determine swap size (2 x memory, max 20% of disk)
+	_memsize=$(scan_dmesg '/real mem/s/.*(\([0-9]*\)MB)/\1/p')
+	_rootsize=$(disklabel -p m $ROOTDISK | sed -n '/^[[:space:]]*c:/s/[^0-9]*\([0-9]*\)\.[0-9]M.*/\1/p')
+	_swapsize=$(( $_memsize * 2 ))
+	_swapmax=$(( $_rootsize / 5 ))
+	[[ $_swapsize -gt $_swapmax ]] && _swapsize=$_swapmax
+
+	echo "Determined swap size: ${_swapsize}MB."
+
+	cat > /tmp/disklabel.${ROOTDISK} <<EOF
+z
+a b
+
+${_swapsize}M
+
+a a
+
+
+
+/
+w
+q
+EOF
+}
+
+
+auto_preserve() {
+	local _dk
+
+	echo "Attempting to preserve files from previous install:"
+
+	mkdir /tmp2 && mount -t tmpfs tmpfs /tmp2
+
+	for _dk in $(get_dkdevs); do
+		makedev $_dk || exit
+		mount -r /dev/${_dk}a /mnt2 || continue
+
+		if [[ -s /mnt2/etc/fstab ]]; then
+			egrep '^(/dev/[sw]d[0-9]+[a-z]|[0-9a-f]+\.[a-z])[[:space:]]+/[^[:space:]]+[[:space:]]+ffs' \
+				/mnt2/etc/fstab > /tmp/fstab.preserve
+		else
+			umount -f /mnt2
+			continue
+		fi
+
+		if [[ -d /mnt2/etc/puppet/ssl ]]; then
+			mkdir -p /tmp2/preserve
+			( cd /mnt2 && tar cf - \
+				etc/puppet/ssl \
+				etc/puppet/puppet.conf \
+				| tar xpvf - -C /tmp2/preserve )
+		fi
+
+		if [[ -d /mnt2/etc/ssh ]]; then
+			mkdir -p /tmp2/preserve
+			( cd /mnt2 && tar cf - \
+				etc/ssh/ssh_host_* \
+				| tar xpvf - -C /tmp2/preserve )
+		fi
+
+		umount -f /mnt2
+		break
+	done
+}
+
+
+auto_postinstall() {
+	if [[ -d /tmp2/preserve ]]; then
+		echo "Restoring preserved files:"
+		( cd /tmp2/preserve && tar cf - * | tar xpvf - -C /mnt )
+	fi
+
+	if [[ -s /tmp/fstab.preserve ]]; then
+		echo "Restoring preserved mounts:"
+		cat /tmp/fstab.preserve
+		cat /tmp/fstab.preserve >> /mnt/etc/fstab
+		while read _dev _dir _; do
+			mkdir -p /mnt${_dir}
+		done < /tmp/fstab.preserve
+	fi
+
+	if [[ -n "$SITEPKG" ]]; then
+		echo "Installing site customizations:"
+		ftp -V -o - $SITEPKG | tar xzpvf - -C /mnt
+	fi
+}

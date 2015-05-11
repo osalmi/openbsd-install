@@ -1,0 +1,84 @@
+--- distrib/amd64/common/install.md.orig	Mon Jan 12 16:33:31 2015
++++ distrib/amd64/common/install.md	Tue May  5 11:23:26 2015
+@@ -98,6 +98,10 @@
+ 
+ 	_f=/tmp/fstab.$_disk
+ 	if [[ $_disk == $ROOTDISK ]]; then
++		if [[ -s /tmp/disklabel.$_disk ]]; then
++			disklabel $FSTABFLAG $_f -E $_disk < /tmp/disklabel.$_disk >/dev/null
++			return
++		fi
+ 		while :; do
+ 			echo "The auto-allocated layout for $_disk is:"
+ 			disklabel -h -A $_disk | egrep "^#  |^  [a-p]:"
+--- distrib/amd64/common/list.orig	Sun Dec 28 04:40:19 2014
++++ distrib/amd64/common/list	Mon May 11 09:06:27 2015
+@@ -37,6 +37,7 @@
+ LINK	instbin					sbin/mount
+ LINK	instbin					sbin/mount_cd9660
+ LINK	instbin					sbin/mount_ffs
++LINK	instbin					sbin/mount_tmpfs
+ LINK	instbin					sbin/reboot sbin/halt
+ LINK	instbin					sbin/kbd
+ LINK	instbin					sbin/newfs
+@@ -81,4 +82,6 @@
+ SCRIPT	${CURDIR}/../../miniroot/upgrade.sh	upgrade
+ SCRIPT	${CURDIR}/../../miniroot/install.sh	install
+ SCRIPT	${CURDIR}/../../miniroot/install.sub	install.sub
++SCRIPT	${CURDIR}/../../miniroot/auto_install.sub	auto_install.sub
++COPY	${CURDIR}/../../miniroot/auto_install.conf	auto_install.conf
+ SPECIAL	chmod 755 install upgrade
+--- distrib/miniroot/install.sh.orig	Fri Jan  2 22:38:50 2015
++++ distrib/miniroot/install.sh	Mon May 11 10:43:56 2015
+@@ -61,6 +61,8 @@
+ # include common subroutines and initialization code
+ . install.sub
+ 
++auto_preserve
++
+ DISK=
+ DISKS_DONE=
+ _DKDEVS=$(get_dkdevs)
+@@ -98,6 +100,7 @@
+ 	# /tmp/fstab.$DISK is created here with 'disklabel -f' or
+ 	# 'disklabel -F' depending on the value of $FSTABFLAG.
+ 	rm -f /tmp/*.$DISK
++	auto_disklabel
+ 	md_prep_disklabel $DISK || { DISK=; continue; }
+ 
+ 	# Make sure there is a '/' mount point.
+@@ -318,4 +321,5 @@
+ )
+ 
+ # Perform final steps common to both an install and an upgrade.
++auto_postinstall
+ finish_up
+--- distrib/miniroot/install.sub.orig	Sun Mar  8 13:15:00 2015
++++ distrib/miniroot/install.sub	Mon May 11 08:01:31 2015
+@@ -88,6 +88,7 @@
+ #	MDXAPERTURE - set machdep.allowaperture=value in sysctl.conf
+ #	NCPU	    - the number of cpus for mp capable arches
+ . install.md
++. auto_install.sub
+ 
+ set_term() {
+ 	local _layouts
+@@ -2158,6 +2159,7 @@
+ 
+ __EOT
+ elif [[ -z $RESPFILE ]]; then
++	auto_configure
+ 	if ! get_responsefile; then
+ 		echo "No response file found; non-interactive mode aborted."
+ 		exit 1
+--- sys/arch/amd64/conf/RAMDISK_CD.orig	Sun Feb  8 23:52:07 2015
++++ sys/arch/amd64/conf/RAMDISK_CD	Mon May 11 09:01:58 2015
+@@ -19,6 +19,8 @@
+ option		CD9660
+ option		UDF
+ option		MSDOSFS
++option		DIAGNOSTIC
++option		TMPFS
+ option		INET
+ option		INET6
+ option		CRYPTO
