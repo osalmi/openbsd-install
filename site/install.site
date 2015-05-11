@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-# Copyright (c) 2005-2014 Ossi Salmi
+# Copyright (c) 2005-2015 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -18,24 +18,23 @@ echo "Installing additional packages:"
 ldconfig /usr/X11R6/lib /usr/local/lib
 pkg_add -avx -l /install.pkgs
 
+# add hostname to root prompt
 echo "\nexport PS1='\h# '" >>/root/.profile
 
-# /bin/{bash,zsh} for compatibility
+# /bin/bash for compatibility
 ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
-ln -s /usr/local/bin/zsh /bin/zsh && echo "/bin/zsh" >> /etc/shells
 
 (
+	cd /usr/local/bin
+
 	# set default python
 	PYTHON=2.7
-	cd /usr/local/bin
-	for cmd in idle pydoc python python-config; do
+	for cmd in pydoc python; do
 		test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
 	done
-)
-(
+
 	# set default ruby
-	RUBY=20
-	cd /usr/local/bin
+	RUBY=21
 	for cmd in erb gem irb rake rdoc ri ruby testrb; do
 		test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
 	done
