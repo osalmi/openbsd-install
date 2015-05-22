@@ -50,7 +50,7 @@ auto_configure() {
 			fi
 		done
 	fi
-	echo "Which network interface = $_ifdev" >> /install.conf
+	echo "Which network interface = $_ifdev" >> /auto_install.conf
 }
 
 
