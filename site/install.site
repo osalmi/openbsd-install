@@ -34,7 +34,7 @@ ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
 	done
 
 	# set default ruby
-	RUBY=21
+	RUBY=22
 	for cmd in erb gem irb rake rdoc ri ruby testrb; do
 		test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
 	done
