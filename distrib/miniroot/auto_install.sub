@@ -1,4 +1,4 @@
-SITEPKG=http://boot.jkry.org/OpenBSD/${VNAME}/site${VERSION}.tgz
+SITEPKG=http://boot.jkry.org/OpenBSD/${VNAME}/site${VERSION}.tgz.sig
 
 auto_configure() {
 	local AUTO RESPFILE _dk _hash _password _ifdevs _ifdev
@@ -108,6 +108,8 @@ auto_preinstall() {
 
 
 auto_postinstall() {
+	local _tmpdir _tmpfile
+
 	if [[ -d /tmp2/preserve ]]; then
 		echo "Restoring preserved files:"
 		( cd /tmp2/preserve && tar cf - * | tar xpvf - -C /mnt )
@@ -124,7 +126,13 @@ auto_postinstall() {
 
 	if [[ -n "$SITEPKG" ]]; then
 		echo "Installing site customizations:"
-		ftp -V -o - $SITEPKG | tar xzpvf - -C /mnt
+		_tmpdir=$(tmpdir /mnt/sets)
+		[[ -d "$_tmpdir" ]] || exit 1
+		_tmpfile="$_tmpdir/site.tgz"
+		ftp -Vmo "$_tmpfile.sig" "$SITEPKG" &&
+		signify -Vep /etc/signify/site.pub -m "$_tmpfile" &&
+		tar xzpvf "$_tmpfile" -C /mnt || exit 1
+		[[ -d "$_tmpdir" ]] && rm -rf "$_tmpdir"
 	fi
 }
 
