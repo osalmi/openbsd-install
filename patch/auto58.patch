@@ -1,0 +1,59 @@
+--- distrib/amd64/common/list.orig	Mon Oct 19 15:17:32 2015
++++ distrib/amd64/common/list	Mon Oct 19 15:17:33 2015
+@@ -39,6 +39,7 @@
+ LINK	instbin					sbin/mount
+ LINK	instbin					sbin/mount_cd9660
+ LINK	instbin					sbin/mount_ffs
++LINK	instbin					sbin/mount_tmpfs
+ LINK	instbin					sbin/newfs
+ LINK	instbin					sbin/ping
+ LINK	instbin					sbin/reboot sbin/halt
+@@ -83,4 +84,6 @@
+ SCRIPT	${CURDIR}/../../miniroot/upgrade.sh	upgrade
+ SCRIPT	${CURDIR}/../../miniroot/install.sh	install
+ SCRIPT	${CURDIR}/../../miniroot/install.sub	install.sub
++SCRIPT	${CURDIR}/../../miniroot/auto_install.sub	auto_install.sub
++COPY	${CURDIR}/../../miniroot/auto_install.conf	auto_install.conf
+ SPECIAL	chmod 755 install upgrade
+--- distrib/miniroot/install.sh.orig	Sun Jul 19 21:05:41 2015
++++ distrib/miniroot/install.sh	Mon Oct 19 15:20:49 2015
+@@ -99,10 +99,12 @@
+ 
+ # Set TZ variable based on zonefile and user selection.
+ set_timezone /var/tzlist
++auto_preinstall
+ echo
+ 
+ # Get information about ROOTDISK, etc.
+ get_rootinfo
++auto_disklabel
+ 
+ DISK=
+ DISKS_DONE=
+@@ -364,4 +366,5 @@
+ )
+ 
+ # Perform final steps common to both an install and an upgrade.
++auto_postinstall
+ finish_up
+--- distrib/miniroot/install.sub.orig	Thu Aug  6 14:55:51 2015
++++ distrib/miniroot/install.sub	Mon Oct 19 15:21:46 2015
+@@ -2370,6 +2370,7 @@
+ done
+ 
+ # Interactive or automatic installation?
++. auto_install.sub
+ if ! $AUTO; then
+ 	cat <<__EOT
+ At any prompt except password prompts you can escape to a shell by
+--- sys/arch/amd64/conf/RAMDISK_CD.orig	Mon Oct 19 15:22:41 2015
++++ sys/arch/amd64/conf/RAMDISK_CD	Mon Oct 19 15:22:36 2015
+@@ -21,6 +21,8 @@
+ option		MSDOSFS
+ option		INET6
+ option		CRYPTO
++option		DIAGNOSTIC
++option		TMPFS
+ 
+ option		RAMDISK_HOOKS
+ option		MINIROOTSIZE=4480
