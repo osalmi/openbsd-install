@@ -80,7 +80,7 @@ auto_preinstall() {
 
 		if [[ -s /mnt2/etc/fstab ]]; then
 			egrep '^(/dev/[sw]d[0-9]+[a-z]|[0-9a-f]+\.[a-z])[[:space:]]+/[^[:space:]]+[[:space:]]+ffs' \
-				/mnt2/etc/fstab > /tmp/fstab.preserve
+				/mnt2/etc/fstab > /tmp2/fstab.preserve
 		else
 			umount -f /mnt2
 			continue
@@ -115,13 +115,13 @@ auto_postinstall() {
 		( cd /tmp2/preserve && tar cf - * | tar xpvf - -C /mnt )
 	fi
 
-	if [[ -s /tmp/fstab.preserve ]]; then
+	if [[ -s /tmp2/fstab.preserve ]]; then
 		echo "Restoring preserved mounts:"
-		cat /tmp/fstab.preserve
-		cat /tmp/fstab.preserve >> /mnt/etc/fstab
+		cat /tmp2/fstab.preserve
+		cat /tmp2/fstab.preserve >> /mnt/etc/fstab
 		while read _dev _dir _; do
 			mkdir -p /mnt${_dir}
-		done < /tmp/fstab.preserve
+		done < /tmp2/fstab.preserve
 	fi
 
 	if [[ -n "$SITEPKG" ]]; then
