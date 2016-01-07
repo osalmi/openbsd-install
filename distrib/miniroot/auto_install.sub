@@ -136,5 +136,4 @@ auto_postinstall() {
 	fi
 }
 
-
-[[ -z "$RESPFILE" ]] && auto_configure
+$AUTO && [[ -z "$RESPFILE" ]] && auto_configure
