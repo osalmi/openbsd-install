@@ -15,7 +15,7 @@ mysrc() {
     _dir="${1:-src}"
 
     SERVER="anoncvs@anoncvs.eu.openbsd.org:/cvs"
-    BRANCH="OPENBSD_`uname -r | sed 's/\./_/'`"
+    BRANCH="${OPENBSD_BRANCH:-OPENBSD_`uname -r | tr . _`}"
 
     cd /usr || exit 1
     if [[ -d $_dir/CVS ]]; then
