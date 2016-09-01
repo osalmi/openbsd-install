@@ -1,7 +1,7 @@
 SITEPKG=http://boot.jkry.org/OpenBSD/${VNAME}/site${VERSION}.tgz.sig
 
 auto_configure() {
-	local AUTO RESPFILE _dk _hash _password _ifdevs _ifdev
+	local AUTO RESPFILE _dk _hash _password _ifs _if
 
 	for _dk in $(get_dkdevs); do
 		makedev $_dk || exit
@@ -26,27 +26,27 @@ auto_configure() {
 		echo "Password for root = $_password" >> /auto_install.conf
 	fi
 
-	_ifdevs=$(get_ifdevs)
-	set -- $_ifdevs
+	_ifs=$(get_ifs)
+	set -- $_ifs
 	if [[ $# -eq 1 ]]; then
-		_ifdev=$1
+		_if=$1
 	else
 		# try to find first active interface
 		while [[ $# -gt 0 ]]; do
 			ifconfig $1 | grep -q "status: active" && break
 			shift
 		done
-		_ifdev=$1
-		while [[ -z "$_ifdev" ]]; do
+		_if=$1
+		while [[ -z "$_if" ]]; do
 			AUTO=false RESPFILE= ask_which "network interface" \
-				"do you wish to configure" "$_ifdevs"
-			if isin $resp $_ifdevs; then
-				_ifdev=$resp
+				"do you wish to configure" "$_ifs"
+			if isin $resp $_ifs; then
+				_if=$resp
 				break
 			fi
 		done
 	fi
-	echo "Which network interface = $_ifdev" >> /auto_install.conf
+	echo "Which network interface = $_if" >> /auto_install.conf
 }
 
 
