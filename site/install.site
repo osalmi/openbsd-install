@@ -52,7 +52,7 @@ if [[ -x /usr/local/bin/puppet && -s /etc/puppet/ssl/certs/ca.pem ]]; then
 fi
 
 echo "Enabling softdep on FFS mounts."
-awk '{ if($3 == "ffs" && $4 == "rw") $4 = "rw,softdep"; print }' \
+awk '{ if($3 == "ffs" && !index($4, "softdep")) $4 = $4",softdep"; print }' \
 	/etc/fstab > /tmp/fstab && mv /tmp/fstab /etc/fstab
 
 echo "Fixing permissions:"
