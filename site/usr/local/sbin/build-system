@@ -31,14 +31,14 @@ mykernel() {
     else
         KERNEL=GENERIC
     fi
-    cd /usr/src/sys/arch/${MYARCH}/conf
-    config ${KERNEL}
-    cd /usr/src/sys/arch/${MYARCH}/compile/${KERNEL}
-    make clean depend all install
+    cd /usr/src/sys/arch/${MYARCH}/conf && \
+        config ${KERNEL}
+    cd /usr/src/sys/arch/${MYARCH}/compile/${KERNEL} && \
+        make obj && make clean all install
 }
 
 mysystem() {
-    cd /usr/obj && rm -fr *
+    cd /usr/obj && rm -fr -- *
     cd /usr/src && make obj
     cd /usr/src/etc && env DESTDIR=/ make distrib-dirs
     cd /usr/src && make build
@@ -52,7 +52,7 @@ myrelease() {
     [[ -d ${DESTDIR} ]] && rm -fr ${DESTDIR}
     [[ -d ${RELEASEDIR} ]] && rm -fr ${RELEASEDIR}
     mkdir -p ${DESTDIR} ${RELEASEDIR}
-    cd /usr/src/distrib/special/libstubs && make obj depend all install
+    cd /usr/src/distrib/special/libstubs && make depend all install
     cd /usr/src/etc && make release
     cd /usr/src/distrib/sets && sh checkflist
 }
