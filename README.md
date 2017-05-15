@@ -11,20 +11,22 @@
 
 ```
 # cd /usr/src
+# make obj
+# make -C lib/libcrypto depend
+# make -C distrib/special/libstubs depend all install
 # ftp -o - https://bitbucket.org/osalmi/openbsd-ai/get/master.tar.gz | \
   tar -zxvf - -s '%[^/]*/*%%'
-# patch -b -p0 < patch/auto60.patch
-# make -C distrib/special/libstubs obj depend all install
+# patch -b -p0 < patch/auto61.patch
 # cd /usr/src/distrib/amd64
-# make -C ramdisk_cd clean bsd.rd
-# make -C cdfs clean cd60.iso
+# make -C ramdisk_cd    # ramdisk_cd/obj/bsd.rd ramdisk_cd/obj/miniroot61.fs
+# make -C cdfs          # cdfs/obj/cd61.iso
 ```
 
 * Create and sign the site tarball
 
 ```
 # cd /usr/src/site
-# tar zcvf ../site60.tgz *
+# tar zcvf ../site61.tgz *
 # cd ..
-# signify -S -e -s /etc/signify/site.sec -m site60.tgz -x site60.tgz.sig
+# signify -S -e -s /etc/signify/site.sec -m site61.tgz -x site61.tgz.sig
 ```
