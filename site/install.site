@@ -16,7 +16,7 @@
 
 echo "Installing additional packages:"
 ldconfig /usr/X11R6/lib /usr/local/lib
-pkg_add -avx -l /install.pkgs
+pkg_add -avxz -l /install.pkgs
 
 # add hostname to root prompt
 echo "\nexport PS1='\h# '" >>/root/.profile
@@ -32,24 +32,12 @@ ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
 	for cmd in pydoc python; do
 		test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
 	done
-
-	# set default ruby
-	RUBY=22
-	for cmd in erb gem irb rake rdoc ri ruby testrb; do
-		test -f ${cmd}${RUBY} && ln -s ${cmd}${RUBY} ${cmd}
-	done
 )
 
 # silence /etc/{daily,weekly,monthly}
 for i in /etc/{daily,weekly,monthly}.local; do
 	echo "VERBOSESTATUS=0" > $i
 done
-
-if [[ -x /usr/local/bin/puppet && -s /etc/puppet/ssl/certs/ca.pem ]]; then
-	echo "Bootstrapping puppet."
-	/usr/local/bin/puppet agent --no-daemonize --no-report \
-		--onetime --pluginsync --tags bootstrap
-fi
 
 echo "Enabling softdep on FFS mounts."
 awk '{ if($3 == "ffs" && !index($4, "softdep")) $4 = $4",softdep"; print }' \
