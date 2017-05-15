@@ -4,7 +4,7 @@ auto_configure() {
 	local AUTO RESPFILE _dk _hash _password _ifs _if
 
 	for _dk in $(get_dkdevs); do
-		makedev $_dk || exit
+		make_dev $_dk || exit
 		mount -r /dev/${_dk}a /mnt2 2>/dev/null || continue
 		_hash=
 		[[ -s /mnt2/etc/master.passwd ]] && \
@@ -18,7 +18,7 @@ auto_configure() {
 
 	if [[ -z "$_hash" ]]; then
 		while :; do
-			AUTO=false RESPFILE= askpassword \
+			AUTO=false RESPFILE= ask_password \
 				"Password for root account?"
 			[[ -n "$_password" ]] && break
 			echo "The root password must be set."
@@ -72,33 +72,31 @@ auto_preinstall() {
 
 	echo "Attempting to preserve files from previous install:"
 
-	mkdir /tmp2 && mount -t tmpfs tmpfs /tmp2
-
 	for _dk in $(get_dkdevs); do
-		makedev $_dk || exit
+		make_dev $_dk || exit
 		mount -r /dev/${_dk}a /mnt2 || continue
 
 		if [[ -s /mnt2/etc/fstab ]]; then
 			egrep '^(/dev/[sw]d[0-9]+[a-z]|[0-9a-f]+\.[a-z])[[:space:]]+/[^[:space:]]+[[:space:]]+ffs' \
-				/mnt2/etc/fstab > /tmp2/fstab.preserve
+				/mnt2/etc/fstab > /tmp/fstab.preserve
 		else
 			umount -f /mnt2
 			continue
 		fi
 
 		if [[ -d /mnt2/etc/puppet/ssl ]]; then
-			mkdir -p /tmp2/preserve
+			mkdir -p /tmp/preserve
 			( cd /mnt2 && tar cf - \
 				etc/puppet/ssl \
 				etc/puppet/puppet.conf \
-				| tar xpvf - -C /tmp2/preserve )
+				| tar xpvf - -C /tmp/preserve )
 		fi
 
 		if [[ -d /mnt2/etc/ssh ]]; then
-			mkdir -p /tmp2/preserve
+			mkdir -p /tmp/preserve
 			( cd /mnt2 && tar cf - \
 				etc/ssh/ssh_host_* \
-				| tar xpvf - -C /tmp2/preserve )
+				| tar xpvf - -C /tmp/preserve )
 		fi
 
 		umount -f /mnt2
@@ -110,18 +108,18 @@ auto_preinstall() {
 auto_postinstall() {
 	local _tmpdir _tmpfile
 
-	if [[ -d /tmp2/preserve ]]; then
+	if [[ -d /tmp/preserve ]]; then
 		echo "Restoring preserved files:"
-		( cd /tmp2/preserve && tar cf - * | tar xpvf - -C /mnt )
+		( cd /tmp/preserve && tar cf - * | tar xpvf - -C /mnt )
 	fi
 
-	if [[ -s /tmp2/fstab.preserve ]]; then
+	if [[ -s /tmp/fstab.preserve ]]; then
 		echo "Restoring preserved mounts:"
-		cat /tmp2/fstab.preserve
-		cat /tmp2/fstab.preserve >> /mnt/etc/fstab
+		cat /tmp/fstab.preserve
+		cat /tmp/fstab.preserve >> /mnt/etc/fstab
 		while read _dev _dir _; do
 			mkdir -p /mnt${_dir}
-		done < /tmp2/fstab.preserve
+		done < /tmp/fstab.preserve
 	fi
 
 	if [[ -n "$SITEPKG" ]]; then
