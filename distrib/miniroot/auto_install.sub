@@ -1,7 +1,7 @@
 SITEPKG=http://boot.jkry.org/OpenBSD/${VNAME}/site${VERSION}.tgz.sig
 
 auto_configure() {
-	local AUTO RESPFILE _dk _hash _password _ifs _if
+	local AUTO AI_RESPFILE _dk _hash _password _ifs _if
 
 	for _dk in $(get_dkdevs); do
 		make_dev $_dk || exit
@@ -18,7 +18,7 @@ auto_configure() {
 
 	if [[ -z "$_hash" ]]; then
 		while :; do
-			AUTO=false RESPFILE= ask_password \
+			AUTO=false AI_RESPFILE= ask_password \
 				"Password for root account?"
 			[[ -n "$_password" ]] && break
 			echo "The root password must be set."
@@ -38,7 +38,7 @@ auto_configure() {
 		done
 		_if=$1
 		while [[ -z "$_if" ]]; do
-			AUTO=false RESPFILE= ask_which "network interface" \
+			AUTO=false AI_RESPFILE= ask_which "network interface" \
 				"do you wish to configure" "$_ifs"
 			if isin $resp $_ifs; then
 				_if=$resp
@@ -134,4 +134,4 @@ auto_postinstall() {
 	fi
 }
 
-$AUTO && [[ -z "$RESPFILE" ]] && auto_configure
+$AUTO && [[ -z "$AI_RESPFILE" ]] && auto_configure

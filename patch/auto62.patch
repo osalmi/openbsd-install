@@ -1,0 +1,49 @@
+--- distrib/amd64/common/list.orig	Fri Dec 30 22:32:23 2016
++++ distrib/amd64/common/list	Fri Oct 13 14:34:41 2017
+@@ -69,6 +69,7 @@
+ COPY	${CURDIR}/../../miniroot/master.passwd	etc/master.passwd
+ SPECIAL	pwd_mkdb -p -d etc master.passwd; rm etc/master.passwd
+ COPY	${DESTDIR}/etc/signify/openbsd-${REV}-base.pub	etc/signify/openbsd-${REV}-base.pub
++COPY	${DESTDIR}/etc/signify/site.pub		etc/signify/site.pub
+ COPY	${CURDIR}/../../miniroot/protocols	etc/protocols
+ COPY	${CURDIR}/../../miniroot/services	etc/services
+ TERMCAP	vt100,vt220,dumb			usr/share/misc/termcap
+@@ -83,5 +84,7 @@
+ SCRIPT	${CURDIR}/../../miniroot/install.sub	install.sub
+ SPECIAL	chmod 755 install.sub
+ SYMLINK	install.sub				autoinstall
++SCRIPT	${CURDIR}/../../miniroot/auto_install.sub	auto_install.sub
++COPY	${CURDIR}/../../miniroot/auto_install.conf	auto_install.conf
+ SYMLINK	install.sub				install
+ SYMLINK	install.sub				upgrade
+--- distrib/miniroot/install.sub.orig	Fri Aug 25 18:21:30 2017
++++ distrib/miniroot/install.sub	Fri Oct 13 14:37:38 2017
+@@ -2777,10 +2777,12 @@
+ 	# Set TZ variable based on zonefile and user selection.
+ 	set_timezone /var/tzlist
+ 
++	auto_preinstall
+ 	echo
+ 
+ 	# Get information about ROOTDISK, etc.
+ 	get_rootinfo
++	$AUTO && auto_disklabel
+ 
+ 	DISKS_DONE=
+ 	FSENT=
+@@ -2997,6 +2999,7 @@
+ 	)
+ 
+ 	# Perform final steps common to both an install and an upgrade.
++	auto_postinstall
+ 	finish_up
+ }
+ 
+@@ -3190,6 +3193,7 @@
+ ((COLUMNS == 0)) && COLUMNS=80
+ 
+ # Interactive or automatic installation?
++. auto_install.sub
+ if ! $AUTO; then
+ 	cat <<__EOT
+ At any prompt except password prompts you can escape to a shell by
