@@ -14,7 +14,7 @@
 # make obj
 # make -C lib/libcrypto depend
 # make -C distrib/special/libstubs depend all install
-# ftp -o - https://bitbucket.org/osalmi/openbsd-ai/get/master.tar.gz | \
+# ftp -o - https://github.com/osalmi/openbsd-install/archive/master.tar.gz | \
   tar -zxvf - -s '%[^/]*/*%%'
 # patch -b -p0 < patch/auto62.patch
 # cd /usr/src/distrib/amd64
