@@ -49,24 +49,6 @@ auto_configure() {
 	echo "Which network interface = $_if" >> /auto_install.conf
 }
 
-
-auto_disklabel() {
-	local _memsize _rootsize _swapsize _swapmax
-
-	# determine swap size (2 x memory, max 20% of disk)
-	_memsize=$(scan_dmesg '/real mem/s/.*(\([0-9]*\)MB)/\1/p')
-	_rootsize=$(disklabel -p m $ROOTDISK | sed -n '/^[[:space:]]*c:/s/[^0-9]*\([0-9]*\)\.[0-9]M.*/\1/p')
-	_swapsize=$(( ($_memsize * 2 / 512 + 1) * 512))
-	_swapmax=$(( $_rootsize / 5 ))
-	[[ $_swapsize -gt $_swapmax ]] && _swapsize=$_swapmax
-
-	cat > /tmp/disklabel.auto <<EOF
-/	2G-*	100%
-swap	${_swapsize}M
-EOF
-}
-
-
 auto_preinstall() {
 	local _dk
 
