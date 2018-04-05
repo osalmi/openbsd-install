@@ -1,0 +1,36 @@
+--- distrib/amd64/common/list.orig	Fri Dec 30 22:32:23 2016
++++ distrib/amd64/common/list	Thu Apr  5 12:29:02 2018
+@@ -85,3 +85,7 @@
+ SYMLINK	install.sub				autoinstall
+ SYMLINK	install.sub				install
+ SYMLINK	install.sub				upgrade
++COPY	${DESTDIR}/etc/signify/site.pub		etc/signify/site.pub
++COPY	${CURDIR}/../../miniroot/auto_install.conf	auto_install.conf
++COPY	${CURDIR}/../../miniroot/auto_install.label	auto_install.label
++COPY	${CURDIR}/../../miniroot/auto_install.sub	auto_install.sub
+--- distrib/miniroot/install.sub.orig	Thu Mar 15 17:43:54 2018
++++ distrib/miniroot/install.sub	Thu Apr  5 12:32:23 2018
+@@ -2881,6 +2881,7 @@
+ 	# Set TZ variable based on zonefile and user selection.
+ 	set_timezone /var/tzlist
+ 
++	auto_preinstall
+ 	echo
+ 
+ 	# Get information about ROOTDISK, etc.
+@@ -3097,6 +3098,7 @@
+ 	)
+ 
+ 	# Perform final steps common to both an install and an upgrade.
++	auto_postinstall
+ 	finish_up
+ }
+ 
+@@ -3299,6 +3301,7 @@
+ ((COLUMNS == 0)) && COLUMNS=80
+ 
+ # Interactive or automatic installation?
++. auto_install.sub
+ if ! $AUTO; then
+ 	cat <<__EOT
+ At any prompt except password prompts you can escape to a shell by
