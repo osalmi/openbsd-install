@@ -12,21 +12,20 @@
 ```
 # cd /usr/src
 # make obj
-# make -C lib/libcrypto depend
 # make -C distrib/special/libstubs depend all install
 # ftp -o - https://github.com/osalmi/openbsd-install/archive/master.tar.gz | \
   tar -zxvf - -s '%[^/]*/*%%'
-# patch -b -p0 < patch/auto64.patch
+# patch -b -p0 < patch/auto65.patch
 # cd /usr/src/distrib/amd64
-# make -C ramdisk_cd    # ramdisk_cd/obj/bsd.rd ramdisk_cd/obj/miniroot64.fs
-# make -C cdfs          # cdfs/obj/cd64.iso
+# make -C ramdisk_cd    # ramdisk_cd/obj/bsd.rd ramdisk_cd/obj/miniroot65.fs
+# make -C cdfs          # cdfs/obj/cd65.iso
 ```
 
 * Create and sign the site tarball
 
 ```
 # cd /usr/src/site
-# tar zcvf ../site64.tgz *
+# tar zcvf ../site65.tgz *
 # cd ..
-# signify -S -e -s /etc/signify/site.sec -m site64.tgz -x site64.tgz.sig
+# signify -S -e -s /etc/signify/site.sec -m site65.tgz -x site65.tgz.sig
 ```
