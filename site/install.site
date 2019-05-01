@@ -14,21 +14,18 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+set -e
+
 echo "Installing additional packages:"
 ldconfig /usr/X11R6/lib /usr/local/lib
 pkg_add -avxz -l /install.pkgs
 
 # /bin/bash for compatibility
-ln -s /usr/local/bin/bash /bin/bash && echo "/bin/bash" >> /etc/shells
+ln -s /usr/local/bin/bash /bin/bash
+echo "/bin/bash" >> /etc/shells
 
-(
-	cd /usr/local/bin
-	# set default python
-	PYTHON=2.7
-	for cmd in pydoc python; do
-		test -f ${cmd}${PYTHON} && ln -s ${cmd}${PYTHON} ${cmd}
-	done
-)
+# set default python
+( cd /usr/local/bin && ln -s python2 python )
 
 # silence /etc/{daily,weekly,monthly}
 for i in /etc/{daily,weekly,monthly}.local; do
