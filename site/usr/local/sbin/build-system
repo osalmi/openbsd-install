@@ -1,27 +1,26 @@
 #!/bin/ksh
 
 myusage() {
-    echo "Usage: `basename $0` <target>"
-    echo "  src         - checkout or update /usr/src"
-    echo "  ports       - checkout or update /usr/ports"
-    echo "  kernel      - build and install kernel"
-    echo "  system      - build and install system"
-    echo "  release     - build release files"
+    echo "Usage: $(basename "$0") TARGET"
+    echo "  src         checkout or update /usr/src"
+    echo "  ports       checkout or update /usr/ports"
+    echo "  kernel      build and install kernel"
+    echo "  system      build and install system"
+    echo "  release     build release files"
     exit 1
 }
 
 mysrc() {
-    local _dir
-    _dir="${1:-src}"
+    local _dir="${1:-src}"
 
     SERVER="anoncvs@anoncvs.eu.openbsd.org:/cvs"
-    BRANCH="${OPENBSD_BRANCH:-OPENBSD_`uname -r | tr . _`}"
+    BRANCH="${OPENBSD_BRANCH:-OPENBSD_$(uname -r | tr . _)}"
 
     cd /usr || exit 1
-    if [[ -d $_dir/CVS ]]; then
-        cd $_dir && cvs -q up -r $BRANCH -Pd
+    if [[ -d "${_dir}/CVS" ]]; then
+        cd "$_dir" && cvs -q up -r "$BRANCH" -Pd
     else
-        cvs -qd $SERVER get -r $BRANCH -P $_dir
+        cvs -qd "$SERVER" get -r "$BRANCH" -P "$_dir"
     fi
 }
 
@@ -31,9 +30,8 @@ mykernel() {
     else
         KERNEL=GENERIC
     fi
-    cd /usr/src/sys/arch/${MYARCH}/conf && \
-        config ${KERNEL}
-    cd /usr/src/sys/arch/${MYARCH}/compile/${KERNEL} && \
+    cd "/usr/src/sys/arch/${MYARCH}/conf" && config "$KERNEL"
+    cd "/usr/src/sys/arch/${MYARCH}/compile/${KERNEL}" &&
         make obj && make clean all install
 }
 
@@ -45,19 +43,19 @@ mysystem() {
 }
 
 myrelease() {
-    MYDATE=`date +%Y%m%d`
+    MYDATE="$(date +%Y%m%d)"
     export DESTDIR="/var/tmp/dest-${MYDATE}/${MYARCH}"
     export RELEASEDIR="/var/tmp/release-${MYDATE}/${MYARCH}"
 
-    [[ -d ${DESTDIR} ]] && rm -fr ${DESTDIR}
-    [[ -d ${RELEASEDIR} ]] && rm -fr ${RELEASEDIR}
-    mkdir -p ${DESTDIR} ${RELEASEDIR}
+    [[ -d "$DESTDIR" ]] && rm -fr "$DESTDIR"
+    [[ -d "$RELEASEDIR" ]] && rm -fr "$RELEASEDIR"
+    mkdir -p "$DESTDIR" "$RELEASEDIR"
     cd /usr/src/distrib/special/libstubs && make depend all install
     cd /usr/src/etc && make release
     cd /usr/src/distrib/sets && sh checkflist
 }
 
-MYARCH=`uname -m`
+MYARCH="$(uname -m)"
 
 umask 022
 
