@@ -13,19 +13,18 @@
 # cd /usr/src
 # make obj
 # make -C distrib/special/libstubs depend all install
-# ftp -o - https://github.com/osalmi/openbsd-install/archive/master.tar.gz | \
+# ftp -o - https://github.com/osalmi/openbsd-install/archive/master.tar.gz |
   tar -zxvf - -s '%[^/]*/*%%'
-# patch -b -p0 < patch/auto65.patch
-# cd /usr/src/distrib/amd64
-# make -C ramdisk_cd    # ramdisk_cd/obj/bsd.rd ramdisk_cd/obj/miniroot65.fs
-# make -C cdfs          # cdfs/obj/cd65.iso
+# patch -b -p0 < patch/auto66.patch
+# cd /usr/src/distrib/amd64/ramdisk_cd
+# make          # obj/bsd.rd obj/miniroot66.fs obj/cd66.iso
 ```
 
 * Create and sign the site tarball
 
 ```
 # cd /usr/src/site
-# tar zcvf ../site65.tgz *
+# tar zcvf ../site66.tgz *
 # cd ..
-# signify -S -e -s /etc/signify/site.sec -m site65.tgz -x site65.tgz.sig
+# signify -S -e -s /etc/signify/site.sec -m site66.tgz -x site66.tgz.sig
 ```

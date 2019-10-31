@@ -142,4 +142,4 @@ auto_postinstall() {
 	fi
 }
 
-$AI && [[ -z "$AI_RESPFILE" ]] && auto_configure
+$AI && ! $UU && [[ -z "$AI_RESPFILE" ]] && auto_configure

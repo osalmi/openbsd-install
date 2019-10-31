@@ -1,6 +1,6 @@
 #!/bin/ksh
 
-# Copyright (c) 2005-2018 Ossi Salmi
+# Copyright (c) 2005-2019 Ossi Salmi
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -23,9 +23,6 @@ pkg_add -avxz -l /install.pkgs
 # /bin/bash for compatibility
 ln -s /usr/local/bin/bash /bin/bash
 echo "/bin/bash" >> /etc/shells
-
-# set default python
-( cd /usr/local/bin && ln -s python2 python )
 
 # silence /etc/{daily,weekly,monthly}
 for i in /etc/{daily,weekly,monthly}.local; do
